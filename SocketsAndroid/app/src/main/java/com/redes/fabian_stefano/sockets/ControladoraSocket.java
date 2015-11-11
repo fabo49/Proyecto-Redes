@@ -9,10 +9,14 @@ package com.redes.fabian_stefano.sockets;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.net.InetAddress;
+
 
 public class ControladoraSocket {
 
     private Socket m_socket;
+
+
 
     /**
      * Constructor por defecto de la clase. Crea un socket vacio
@@ -26,14 +30,22 @@ public class ControladoraSocket {
      * @param direccion la direccion IP del servidor donde se quiere conectar.
      */
     public ControladoraSocket(String direccion){
-        try{
-            m_socket = new Socket(direccion, 9876);
-        }catch(UnknownHostException e){
-        //Excepcion por si no logra resolver el host.
-            e.printStackTrace();
-        }catch (IOException e) {
-        //Excepcion por si ocurre un error creando el Socket.
+        InetAddress m_direccion_server;
+
+        try {
+            m_direccion_server = InetAddress.getByName(direccion);
+            try{
+                m_socket = new Socket(m_direccion_server, 9876);
+            }catch(UnknownHostException e){
+                //Excepcion por si no logra resolver el host.
+                e.printStackTrace();
+            }catch (IOException e) {
+                //Excepcion por si ocurre un error creando el Socket.
+                e.printStackTrace();
+            }
+        } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
     }
 }

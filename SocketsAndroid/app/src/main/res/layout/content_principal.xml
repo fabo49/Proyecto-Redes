@@ -47,6 +47,10 @@
                 android:text="@string/label_numero_veces"
                 android:id="@+id/label_cant_veces" />
 
+            <Space
+                android:layout_width="50px"
+                android:layout_height="match_parent"/>
+
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

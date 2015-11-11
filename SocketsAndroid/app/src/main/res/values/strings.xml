@@ -5,4 +5,6 @@
     <string name="placeholder_ip">Ingrese la dirección IP</string>
     <string name="placeholder_mensaje">Ingrese el mensaje a enviar</string>
     <string name="label_numero_veces">Número de envíos</string>
+    <string name="action_clear">Reestablecer</string>
+    <string name="action_info">Información</string>
 </resources>

@@ -20,6 +20,8 @@ public class Principal extends AppCompatActivity {
 
     private EditText edit_resultados;
     private EditText input_direccion;
+    private EditText input_mensaje;
+    private EditText input_cant_veces;
     private FloatingActionButton fab;
     private ControladoraSocket m_controladora;
 
@@ -33,15 +35,27 @@ public class Principal extends AppCompatActivity {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
+            public void onClick(View v) {
+                if(input_direccion.getText().toString() != "") {
+                    m_controladora = new ControladoraSocket(input_direccion.getText().toString());
+                }
+            }
+        });
+
+        /* //Para generar la alerta abajo.
+        * new View.OnClickListener() {
+            @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
-
+        }
+        * */
         edit_resultados = (EditText) findViewById(R.id.edit_resultado);
         input_direccion = (EditText) findViewById(R.id.input_direccion);
-        m_controladora = new ControladoraSocket();
+        input_mensaje = (EditText) findViewById(R.id.input_mensaje);
+        input_cant_veces = (EditText) findViewById(R.id.input_cant_veces);
+
     }
 
     @Override
@@ -59,7 +73,14 @@ public class Principal extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_info) {
+            return true;
+        }
+        if(id==R.id.action_clear){
+            input_direccion.setText("");
+            edit_resultados.setText("");
+            input_mensaje.setText("");
+            input_cant_veces.setText("");
             return true;
         }
 
