@@ -1,5 +1,11 @@
 package com.redes.fabian_stefano.sockets;
 
+/**
+ * Método que se encarga de controlar los eventos de la interfaz.
+ * @author Fabian Rodriguez
+ * @author Stefano Del Vecchio
+ */
+
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,6 +22,7 @@ public class Principal extends AppCompatActivity {
     private EditText input_direccion;
     private FloatingActionButton fab;
     private ControladoraSocket m_controladora;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
