@@ -8,9 +8,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 public class Principal extends AppCompatActivity {
 
+    private EditText edit_resultados;
+    private EditText input_direccion;
+    private FloatingActionButton fab;
+    private ControladoraSocket m_controladora;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,7 +23,7 @@ public class Principal extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -26,6 +31,10 @@ public class Principal extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        edit_resultados = (EditText) findViewById(R.id.edit_resultado);
+        input_direccion = (EditText) findViewById(R.id.input_direccion);
+        m_controladora = new ControladoraSocket();
     }
 
     @Override
