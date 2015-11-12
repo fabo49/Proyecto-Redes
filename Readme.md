@@ -9,7 +9,7 @@ El proyecto es desarrollado en el ambiente del curso CI-1320 (Redes de computado
 1. http://android-er.blogspot.com/2014/02/android-sercerclient-example-client.html
 2. http://examples.javacodegeeks.com/android/core/socket-core/android-socket-example/
 
-## Desarrolladores
+### Desarrolladores
 
 * Fabián Rodríguez Obando [GitHub](https://github.com/fabo49)
 * Stefano Del Vecchio [GitHub](https://github.com/SDelVecchioC)
