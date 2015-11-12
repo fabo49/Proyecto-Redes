@@ -59,6 +59,7 @@ public class Principal extends AppCompatActivity {
                     //Hace el numero de envios con la cantidad que digito el usuario.
                     for(int i=0; i< cant_veces; ++i){
                         MyClientTask myClientTask = new MyClientTask(direccion, puerto);
+                        myClientTask.execute();
                     }
                 }
             }
