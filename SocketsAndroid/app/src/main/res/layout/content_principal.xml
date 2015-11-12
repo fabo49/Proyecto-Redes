@@ -21,6 +21,7 @@
             android:id="@+id/input_direccion"
             android:hint="@string/placeholder_ip"/>
 
+
         <Space
             android:layout_width="20px"
             android:layout_height="20px" />
