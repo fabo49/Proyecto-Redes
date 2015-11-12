@@ -1,10 +1,11 @@
 <resources>
-    <string name="app_name">Sockets</string>
+    <string name="app_name">Socket cliente</string>
     <string name="action_settings">Settings</string>
     <string name="resultados">Resultados obtenidos:</string>
-    <string name="placeholder_ip">Ingrese la dirección IP</string>
+    <string name="placeholder_ip">IP de destino</string>
     <string name="placeholder_mensaje">Ingrese el mensaje a enviar</string>
     <string name="label_numero_veces">Número de envíos</string>
     <string name="action_clear">Reestablecer</string>
     <string name="action_info">Información</string>
+    <string name="placeholder_puerto">Puerto de destino</string>
 </resources>

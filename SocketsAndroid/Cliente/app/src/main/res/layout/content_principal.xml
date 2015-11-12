@@ -29,8 +29,9 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/input_mensaje"
-            android:hint="@string/placeholder_mensaje"/>
+            android:id="@+id/input_puerto"
+            android:inputType="number"
+            android:hint="@string/placeholder_puerto"/>
 
         <Space
             android:layout_width="20px"
@@ -73,15 +74,16 @@
             android:layout_width="20px"
             android:layout_height="20px" />
 
-        <EditText
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:ems="10"
-            android:id="@+id/edit_resultado"
-            android:layout_gravity="center_horizontal"
-            android:editable="false"
-            android:focusable="false"/>
+            android:id="@+id/scrollView" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/text_resultados"/>
+        </ScrollView>
 
     </LinearLayout>
 
