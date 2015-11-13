@@ -33,6 +33,8 @@ public class Principal extends AppCompatActivity {
     private EditText input_puerto;
     private FloatingActionButton fab;
 
+    private Socket m_socket_cliente;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,13 @@ public class Principal extends AppCompatActivity {
                     for(int i=0; i< cant_veces; ++i){
                         MyClientTask myClientTask = new MyClientTask(direccion, puerto);
                         myClientTask.execute();
+                        Principal.this.runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                text_resultados.setText("*** Se inicia la conexión ***\n");
+                            }
+                        });
                     }
                 }
             }
@@ -86,14 +95,33 @@ public class Principal extends AppCompatActivity {
             return true;
         }
         if(id==R.id.action_clear){
-            input_direccion.setText("");
-            text_resultados.setText("");
-            input_cant_veces.setText("");
-            input_puerto.setText("");
+            vaciar_campos();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void vaciar_campos(){
+        input_direccion.setText("");
+        text_resultados.setText("");
+        input_cant_veces.setText("");
+
+        input_puerto.setText("");
+        if(m_socket_cliente != null){
+            try {
+                m_socket_cliente.close();
+                Principal.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        text_resultados.setText("*** Se cerró la conexión ***\n");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -147,7 +175,8 @@ public class Principal extends AppCompatActivity {
     /**
      * Clase que se encarga de realizar la conexión por medio de los sockets. Lo realiza en un hilo separado ya que todas las
      * operaciones de red se tienen que realizar en un hilo en el "background".
-     * @author Andr.oid Eric http://android-er.blogspot.com/2014/02/android-sercerclient-example-client.html
+     * @author Fabián Rodríguez
+     * @author Stefano Del Vecchio
      */
     public class MyClientTask extends AsyncTask<Void, Void, Void> {
 
@@ -163,22 +192,16 @@ public class Principal extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... arg0) {
 
-            Socket socket = null;
-
             try {
-                socket = new Socket(dstAddress, dstPort);
+                m_socket_cliente = new Socket(dstAddress, dstPort);
 
                 ByteArrayOutputStream byteArrayOutputStream =
                         new ByteArrayOutputStream(1024);
                 byte[] buffer = new byte[1024];
 
                 int bytesRead;
-                InputStream inputStream = socket.getInputStream();
+                InputStream inputStream = m_socket_cliente.getInputStream();
 
-    /*
-     * notice:
-     * inputStream.read() will block if no data return
-     */
                 while ((bytesRead = inputStream.read(buffer)) != -1){
                     byteArrayOutputStream.write(buffer, 0, bytesRead);
                     response += byteArrayOutputStream.toString("UTF-8");
@@ -192,9 +215,9 @@ public class Principal extends AppCompatActivity {
                 e.printStackTrace();
                 response = "IOException: " + e.toString();
             }finally{
-                if(socket != null){
+                if(m_socket_cliente != null){
                     try {
-                        socket.close();
+                        m_socket_cliente.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

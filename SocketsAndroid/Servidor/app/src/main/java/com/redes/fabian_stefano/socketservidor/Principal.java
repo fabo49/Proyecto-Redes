@@ -64,22 +64,7 @@ public class Principal extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                if(socket_servidor != null){
-                    try {
-                        socket_servidor.close();
-                        mensaje+="*** Se cerró el servidor ***";
-                        Principal.this.runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                resultado.setText(mensaje);
-                            }
-                        });
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
+                vaciar_campos();
             }
         });
 
@@ -103,10 +88,32 @@ public class Principal extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if(id== R.id.action_reestablecer){
+            vaciar_campos();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void vaciar_campos(){
+        resultado.setText("");
+        mensaje="";
+        if(socket_servidor != null){
+            try {
+                socket_servidor.close();
+                Principal.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        resultado.setText("*** Se cerró el servidor ***");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -114,8 +121,14 @@ public class Principal extends AppCompatActivity {
         if (socket_servidor != null) {
             try {
                 socket_servidor.close();
+                Principal.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        resultado.setText("*** Se cerró el servidor ***");
+                    }
+                });
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -151,7 +164,6 @@ public class Principal extends AppCompatActivity {
 
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -160,7 +172,8 @@ public class Principal extends AppCompatActivity {
 
     /**
      * Clase que se encarga de hacer las comunicaciones con el socket cliente.
-     * @author @author Andr.oid Eric http://android-er.blogspot.com/2014/02/android-sercerclient-example-client.html
+     * @author Fabián Rodríguez
+     * @author Stefano Del Vecchio
      */
     private class SocketServerReplyThread extends Thread {
 
@@ -175,7 +188,7 @@ public class Principal extends AppCompatActivity {
         @Override
         public void run() {
             OutputStream outputStream;
-            String msgReply = "Hello from Android, you are #" + cnt;
+            String msgReply = "Saludos cliente, usted es #" + cnt;
 
             try {
                 outputStream = hostThreadSocket.getOutputStream();
@@ -183,7 +196,7 @@ public class Principal extends AppCompatActivity {
                 printStream.print(msgReply);
                 printStream.close();
 
-                mensaje += "replayed: " + msgReply + "\n";
+                mensaje += "respuesta: " + msgReply + "\n";
 
                 Principal.this.runOnUiThread(new Runnable() {
 
@@ -194,9 +207,8 @@ public class Principal extends AppCompatActivity {
                 });
 
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-                mensaje += "Something wrong! " + e.toString() + "\n";
+                mensaje += "¡Error! " + e.toString() + "\n";
             }
 
             Principal.this.runOnUiThread(new Runnable() {
@@ -232,9 +244,8 @@ public class Principal extends AppCompatActivity {
             }
 
         } catch (SocketException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-            ip += "Something Wrong! " + e.toString() + "\n";
+            ip += "¡Error! " + e.toString() + "\n";
 
         }
 

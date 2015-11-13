@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Socket servidor</string>
     <string name="action_settings">Información</string>
+    <string name="action_reestablecer">Reestablecer</string>
     <string name="label_ip">Dirección IP:</string>
     <string name="label_puerto">Puerto de escucha:</string>
     <string name="puerto">8080</string>
