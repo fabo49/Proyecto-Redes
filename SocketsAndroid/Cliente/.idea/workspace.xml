@@ -20,22 +20,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="52d171ab-d77c-4338-8284-7969bd9c85fe" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../Servidor/app/src/main/res/128k.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/res/values/opciones_spiner.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Servidor/.idea/.name" afterPath="$PROJECT_DIR$/../Servidor/.idea/.name" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Servidor/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/../Servidor/app/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/redes/fabian_stefano/sockets/Principal.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/redes/fabian_stefano/sockets/Principal.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Servidor/app/src/main/java/com/redes/fabian_stefano/socketservidor/Principal.java" afterPath="$PROJECT_DIR$/../Servidor/app/src/main/java/com/redes/fabian_stefano/socketservidor/Principal.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Servidor/app/build.gradle" afterPath="$PROJECT_DIR$/../Servidor/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/content_principal.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/content_principal.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Servidor/.idea/misc.xml" afterPath="$PROJECT_DIR$/../Servidor/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Servidor/.idea/vcs.xml" afterPath="$PROJECT_DIR$/../Servidor/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="52d171ab-d77c-4338-8284-7969bd9c85fe" name="Default" comment="" />
     <ignored path="Cliente.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
