@@ -5,10 +5,11 @@ package com.redes.fabian_stefano.sockets;
  * @author Fabian Rodriguez
  * @author Stefano Del Vecchio
  */
-
+import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,16 +17,30 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class Principal extends AppCompatActivity {
+public class Principal extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private TextView text_resultados;
     private EditText input_direccion;
@@ -33,8 +48,10 @@ public class Principal extends AppCompatActivity {
     private EditText input_puerto;
     private FloatingActionButton fab;
 
-    private Socket m_socket_cliente;
+    private Spinner m_opciones_tamano;
 
+    private String m_tamano_seleccionado;
+    private String m_respuesta = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +63,10 @@ public class Principal extends AppCompatActivity {
         input_direccion = (EditText) findViewById(R.id.input_direccion);
         input_puerto = (EditText) findViewById(R.id.input_puerto);
         input_cant_veces = (EditText) findViewById(R.id.input_cant_veces);
+        m_opciones_tamano = (Spinner) findViewById(R.id.drop_tamanos);
+        llena_spiner();
+
+        m_opciones_tamano.setOnItemSelectedListener(this);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -61,7 +82,7 @@ public class Principal extends AppCompatActivity {
                     //Hace el numero de envios con la cantidad que digito el usuario.
                     for(int i=0; i< cant_veces; ++i){
                         MyClientTask myClientTask = new MyClientTask(direccion, puerto);
-                        myClientTask.execute();
+                        myClientTask.start();
                         Principal.this.runOnUiThread(new Runnable() {
 
                             @Override
@@ -102,26 +123,31 @@ public class Principal extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Método que llena las opciones disponibles para los tamaños de los archivos a enviar.
+     * */
+    private void llena_spiner(){
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.opciones_spiner, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        m_opciones_tamano.setAdapter(adapter);
+    }
+
+    /**
+     * Método que limpia todos los campos de la interfaz y cierra el socket si está abierto.
+     * @author Fabián Rodríguez
+     * @author Stefano Del Vecchio
+     * */
     private void vaciar_campos(){
         input_direccion.setText("");
         text_resultados.setText("");
         input_cant_veces.setText("");
+        m_respuesta = "";
 
         input_puerto.setText("");
-        if(m_socket_cliente != null){
-            try {
-                m_socket_cliente.close();
-                Principal.this.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        text_resultados.setText("*** Se cerró la conexión ***\n");
-                    }
-                });
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -172,17 +198,26 @@ public class Principal extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        m_tamano_seleccionado = parent.getItemAtPosition(position).toString();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        //No hace nada
+    }
+
     /**
      * Clase que se encarga de realizar la conexión por medio de los sockets. Lo realiza en un hilo separado ya que todas las
      * operaciones de red se tienen que realizar en un hilo en el "background".
      * @author Fabián Rodríguez
      * @author Stefano Del Vecchio
      */
-    public class MyClientTask extends AsyncTask<Void, Void, Void> {
+    public class MyClientTask extends Thread{
 
         String dstAddress;
         int dstPort;
-        String response = "";
 
         MyClientTask(String addr, int port){
             dstAddress = addr;
@@ -190,46 +225,82 @@ public class Principal extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... arg0) {
+        public void run(){
+            long t_inicial = 0;
+            long t_final = 0;
+            Socket socket_cliente = null;
+
+
+            BufferedInputStream buffer_entrada;
 
             try {
-                m_socket_cliente = new Socket(dstAddress, dstPort);
+                String ruta = "";
+                switch(m_tamano_seleccionado){ //El nombre del archivo.
+                    case "128 Kb":
+                        ruta = "128k.txt";
+                        break;
+                    case "256 Kb":
+                        ruta = "256k.txt";
+                        break;
+                    case "512 Kb":
+                        ruta = "512k.txt";
+                        break;
+                }
 
-                ByteArrayOutputStream byteArrayOutputStream =
-                        new ByteArrayOutputStream(1024);
+                //Carga el archivo
+                File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/"+ruta);
+                byte[] buffer_lectura = new byte[(int)archivo.length()];
+
+                socket_cliente = new Socket(dstAddress, dstPort);
+                t_inicial = System.currentTimeMillis();
+
+                buffer_entrada = new BufferedInputStream(new FileInputStream(archivo));
+                buffer_entrada.read(buffer_lectura, 0, buffer_lectura.length);
+
+
+                OutputStream stream_salida = socket_cliente.getOutputStream();
+                stream_salida.write(buffer_lectura, 0, buffer_lectura.length);
+                stream_salida.flush();
+
+
+
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
                 byte[] buffer = new byte[1024];
 
-                int bytesRead;
-                InputStream inputStream = m_socket_cliente.getInputStream();
+                InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
 
-                while ((bytesRead = inputStream.read(buffer)) != -1){
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                    response += byteArrayOutputStream.toString("UTF-8");
+                int bytes_leidos;
+                while ((bytes_leidos = inputStream.read(buffer)) != -1){
+                    byteArrayOutputStream.write(buffer, 0, bytes_leidos);
+                    m_respuesta += byteArrayOutputStream.toString("UTF-8");
                 }
 
             } catch (UnknownHostException e) {
                 e.printStackTrace();
-                response = "UnknownHostException: " + e.toString();
+                m_respuesta = "UnknownHostException: " + e.toString();
 
             } catch (IOException e) {
                 e.printStackTrace();
-                response = "IOException: " + e.toString();
+                m_respuesta = "IOException: " + e.toString();
             }finally{
-                if(m_socket_cliente != null){
+                if(socket_cliente != null){
                     try {
-                        m_socket_cliente.close();
+                        socket_cliente.close();
+                        t_final = System.currentTimeMillis();
+                        m_respuesta += "\nDuración --> "+(t_final - t_inicial)+" ms\n" +
+                                "*** Se cerró la conexión ***\n";
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            return null;
-        }
+            Principal.this.runOnUiThread(new Runnable() {
 
-        @Override
-        protected void onPostExecute(Void result) {
-            text_resultados.append(response+"\n");
-            super.onPostExecute(result);
+                @Override
+                public void run() {
+                    text_resultados.append(m_respuesta + "\n");
+                }
+            });
         }
 
     }

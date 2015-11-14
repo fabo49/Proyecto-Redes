@@ -8,4 +8,5 @@
     <string name="action_clear">Reestablecer</string>
     <string name="action_info">Información</string>
     <string name="placeholder_puerto">Puerto de destino</string>
+    <string name="label_tamano_archivo">Tamaño del archivo</string>
 </resources>

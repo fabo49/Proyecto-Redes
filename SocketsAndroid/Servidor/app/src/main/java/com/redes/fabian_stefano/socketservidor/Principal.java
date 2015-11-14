@@ -2,6 +2,7 @@ package com.redes.fabian_stefano.socketservidor;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +15,12 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
@@ -32,6 +38,9 @@ public class Principal extends AppCompatActivity {
     private Button btn_empezar;
     private Button btn_cerrar;
     private ServerSocket socket_servidor;
+    SocketServerThread hilo_servidor;
+
+    private static final int TAMANO_ARCHIVO = 2000000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,12 +50,21 @@ public class Principal extends AppCompatActivity {
         ip_asignada = (TextView)findViewById(R.id.label_ip_asignada);
         ip_asignada.setText(obtener_direccion_IP());
         resultado = (TextView) findViewById(R.id.label_resultado);
+        btn_cerrar = (Button)findViewById(R.id.btn_cerrar);
+        btn_cerrar.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                vaciar_campos();
+            }
+        });
+
         btn_empezar = (Button) findViewById(R.id.btn_correr);
         btn_empezar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Thread socketServerThread = new Thread(new SocketServerThread());
-                socketServerThread.start();
+                hilo_servidor = new SocketServerThread();
+                hilo_servidor.start();  //Pone a correr el servidor
                 mensaje += "*** El servidor esta corriendo ***\n";
                 Principal.this.runOnUiThread(new Runnable() {
 
@@ -56,15 +74,6 @@ public class Principal extends AppCompatActivity {
                     }
                 });
 
-            }
-        });
-
-        btn_cerrar = (Button)findViewById(R.id.btn_cerrar);
-        btn_cerrar.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                vaciar_campos();
             }
         });
 
@@ -113,6 +122,7 @@ public class Principal extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        ip_asignada.setText(obtener_direccion_IP());
     }
     @Override
     protected void onDestroy() {
@@ -158,9 +168,8 @@ public class Principal extends AppCompatActivity {
                         }
                     });
 
-                    SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(
-                            socket, count);
-                    socketServerReplyThread.run();
+                    SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(socket, count);
+                    socketServerReplyThread.start();
 
                 }
             } catch (IOException e) {
@@ -177,24 +186,40 @@ public class Principal extends AppCompatActivity {
      */
     private class SocketServerReplyThread extends Thread {
 
-        private Socket hostThreadSocket;
+        private Socket socket_servidor;
         int cnt;
 
         SocketServerReplyThread(Socket socket, int c) {
-            hostThreadSocket = socket;
+            this.socket_servidor = socket;
             cnt = c;
         }
 
         @Override
         public void run() {
             OutputStream outputStream;
-            String msgReply = "Saludos cliente, usted es #" + cnt;
+            String msgReply = "Mensaje #" + cnt + " recibido";
 
             try {
-                outputStream = hostThreadSocket.getOutputStream();
+                //Lee lo que le envia el cliente
+                byte[] buffer_lectura = new byte[TAMANO_ARCHIVO];
+                InputStream input_stream = socket_servidor.getInputStream();
+                int bytes_leidos = input_stream.read(buffer_lectura, 0, buffer_lectura.length); //Lee el archivo recibido
+
+                //Procede a guardar el archivo recibido
+                File archivo_guardar = new File(Environment.getExternalStorageDirectory(), "recibido_"+cnt+".txt");
+                FileOutputStream salida_archivo = new FileOutputStream(archivo_guardar);
+
+                BufferedOutputStream buffer_archivo = new BufferedOutputStream(salida_archivo);
+                buffer_archivo.write(buffer_lectura, 0, bytes_leidos);
+                buffer_archivo.close();
+
+                //Envia el mensaje de recibido
+                outputStream = socket_servidor.getOutputStream();
                 PrintStream printStream = new PrintStream(outputStream);
                 printStream.print(msgReply);
                 printStream.close();
+                outputStream.close();
+                socket_servidor.close();
 
                 mensaje += "respuesta: " + msgReply + "\n";
 

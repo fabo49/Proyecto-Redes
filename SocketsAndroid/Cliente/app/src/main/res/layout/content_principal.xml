@@ -46,6 +46,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/label_tamano_archivo"
+                android:id="@+id/label_tamano_archivo" />
+            <Space
+                android:layout_width="20px"
+                android:layout_height="20px" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/drop_tamanos"
+                android:textAlignment="center"
+                />
+        </LinearLayout>
+        <Space
+            android:layout_width="20px"
+            android:layout_height="20px" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/label_numero_veces"
                 android:id="@+id/label_cant_veces" />
 
@@ -61,9 +87,11 @@
                 android:id="@+id/input_cant_veces"
                 android:textAlignment="center" />
         </LinearLayout>
+
         <Space
             android:layout_width="20px"
             android:layout_height="20px" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
