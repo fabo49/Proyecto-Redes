@@ -2,21 +2,20 @@ package com.redes.fabian_stefano.sockets;
 
 /**
  * Método que se encarga de controlar los eventos de la interfaz.
+ *
  * @author Fabian Rodriguez
  * @author Stefano Del Vecchio
  */
-import android.app.Activity;
-import android.graphics.Color;
-import android.os.AsyncTask;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -24,21 +23,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.StringWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Principal extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -51,7 +48,13 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     private Spinner m_opciones_tamano;
 
     private String m_tamano_seleccionado;
-    private String m_respuesta = "";
+    private String m_respuesta;
+
+    private long m_vec_tiempos[];
+    private int m_index_vec_tiempos;
+
+    //Para sincronizacion de los hilos
+    private final Lock m_semaforo_respuesta = new ReentrantLock();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +68,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         input_cant_veces = (EditText) findViewById(R.id.input_cant_veces);
         m_opciones_tamano = (Spinner) findViewById(R.id.drop_tamanos);
         llena_spiner();
+        m_respuesta = "";
+        m_index_vec_tiempos = 0;
 
         m_opciones_tamano.setOnItemSelectedListener(this);
 
@@ -73,28 +78,55 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(validaciones(v)){
+                if (validaciones(v)) {
                     //Obtiene los datos
                     int cant_veces = Integer.parseInt(input_cant_veces.getText().toString());
                     String direccion = input_direccion.getText().toString();
                     int puerto = Integer.parseInt(input_puerto.getText().toString());
+                    m_vec_tiempos = new long[cant_veces];
+                    MyClientTask myClientTask = null;
 
                     //Hace el numero de envios con la cantidad que digito el usuario.
-                    for(int i=0; i< cant_veces; ++i){
-                        MyClientTask myClientTask = new MyClientTask(direccion, puerto);
+                    text_resultados.append("*** Se inicia la conexión ***\n");
+                    for (int i = 0; i < cant_veces; ++i) {
+                        myClientTask = new MyClientTask(direccion, puerto);
                         myClientTask.start();
-                        Principal.this.runOnUiThread(new Runnable() {
+                    }
+                    try {
+                        myClientTask.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
+                        text_resultados.append(m_respuesta+ "*** Se cierra la conexión ***");
+                        String vector = imprime_vector_tiempos();
+                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), "resultados.csv");
+                        try {
+                            FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
+                            PrintStream flujo = new PrintStream(salida_archivo);
+                            flujo.print(vector);
+                            flujo.close();
+                            salida_archivo.close();
 
-                            @Override
-                            public void run() {
-                                text_resultados.setText("*** Se inicia la conexión ***\n");
-                            }
-                        });
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         });
 
+    }
+
+    private String imprime_vector_tiempos() {
+        String a_retornar = "";
+        for (int i = 0; i < m_vec_tiempos.length; ++i) {
+            long tmp = m_vec_tiempos[i];
+            a_retornar += String.valueOf(tmp) + ',';
+        }
+        return a_retornar.substring(0, a_retornar.length() - 1);
     }
 
     @Override
@@ -115,7 +147,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         if (id == R.id.action_info) {
             return true;
         }
-        if(id==R.id.action_clear){
+        if (id == R.id.action_clear) {
             vaciar_campos();
             return true;
         }
@@ -125,8 +157,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     /**
      * Método que llena las opciones disponibles para los tamaños de los archivos a enviar.
-     * */
-    private void llena_spiner(){
+     */
+    private void llena_spiner() {
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.opciones_spiner, android.R.layout.simple_spinner_item);
@@ -138,10 +170,11 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     /**
      * Método que limpia todos los campos de la interfaz y cierra el socket si está abierto.
+     *
      * @author Fabián Rodríguez
      * @author Stefano Del Vecchio
-     * */
-    private void vaciar_campos(){
+     */
+    private void vaciar_campos() {
         input_direccion.setText("");
         text_resultados.setText("");
         input_cant_veces.setText("");
@@ -152,17 +185,18 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     /**
      * Método que realiza las validaciones de los datos en la interfaz.
-     * @author  Fabian Rodriguez
-     * @author Stefano del Vecchio
+     *
      * @param v que es el View actual
      * @return true si son validos los campos, false si no
+     * @author Fabian Rodriguez
+     * @author Stefano del Vecchio
      */
-    private boolean validaciones(View v){
-        if(input_direccion.getText().length() != 0) {
-            if(input_puerto.getText().length() != 0){
-                if(input_cant_veces.getText().length() != 0){
+    private boolean validaciones(View v) {
+        if (input_direccion.getText().length() != 0) {
+            if (input_puerto.getText().length() != 0) {
+                if (input_cant_veces.getText().length() != 0) {
                     return true;
-                }else{
+                } else {
                     Snackbar alerta = Snackbar.make(v, "Tiene que ingresar la cantidad de envíos", Snackbar.LENGTH_LONG);
                     alerta.setAction("Revisar", new View.OnClickListener() {
                         @Override
@@ -173,7 +207,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     alerta.show();
                     return false;
                 }
-            }else{
+            } else {
                 Snackbar alerta = Snackbar.make(v, "Tiene que ingresar un puerto", Snackbar.LENGTH_LONG);
                 alerta.setAction("Revisar", new View.OnClickListener() {
                     @Override
@@ -185,7 +219,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 return false;
             }
 
-        }else{
+        } else {
             Snackbar alerta = Snackbar.make(v, "Tiene que ingresar una dirección IP", Snackbar.LENGTH_LONG);
             alerta.setAction("Revisar", new View.OnClickListener() {
                 @Override
@@ -211,21 +245,22 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     /**
      * Clase que se encarga de realizar la conexión por medio de los sockets. Lo realiza en un hilo separado ya que todas las
      * operaciones de red se tienen que realizar en un hilo en el "background".
+     *
      * @author Fabián Rodríguez
      * @author Stefano Del Vecchio
      */
-    public class MyClientTask extends Thread{
+    public class MyClientTask extends Thread {
 
         String dstAddress;
         int dstPort;
 
-        MyClientTask(String addr, int port){
+        MyClientTask(String addr, int port) {
             dstAddress = addr;
             dstPort = port;
         }
 
         @Override
-        public void run(){
+        public void run() {
             long t_inicial = 0;
             long t_final = 0;
             Socket socket_cliente = null;
@@ -235,7 +270,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
             try {
                 String ruta = "";
-                switch(m_tamano_seleccionado){ //El nombre del archivo.
+                switch (m_tamano_seleccionado) { //El nombre del archivo.
                     case "128 Kb":
                         ruta = "128k.txt";
                         break;
@@ -248,8 +283,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 }
 
                 //Carga el archivo
-                File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/"+ruta);
-                byte[] buffer_lectura = new byte[(int)archivo.length()];
+                File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/" + ruta);
+                byte[] buffer_lectura = new byte[(int) archivo.length()];
 
                 socket_cliente = new Socket(dstAddress, dstPort);
                 t_inicial = System.currentTimeMillis();
@@ -263,16 +298,28 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 stream_salida.flush();
 
 
-
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
                 byte[] buffer = new byte[1024];
 
                 InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
 
                 int bytes_leidos;
-                while ((bytes_leidos = inputStream.read(buffer)) != -1){
-                    byteArrayOutputStream.write(buffer, 0, bytes_leidos);
-                    m_respuesta += byteArrayOutputStream.toString("UTF-8");
+                boolean bloqueo = false;
+                while (!bloqueo) { //trata de adquirir el lock para entrar a la región crítica
+                    if (m_semaforo_respuesta.tryLock()) {
+                        while ((bytes_leidos = inputStream.read(buffer)) != -1) {
+                            byteArrayOutputStream.write(buffer, 0, bytes_leidos);
+                            m_respuesta += byteArrayOutputStream.toString("UTF-8");
+                            t_final = System.currentTimeMillis();
+                            long tiempo_tomado = t_final - t_inicial;
+                            m_respuesta += "\nDuración --> " + String.valueOf(tiempo_tomado) + " ms\n";
+                            m_vec_tiempos[m_index_vec_tiempos] = tiempo_tomado;
+                            ++m_index_vec_tiempos;
+
+                        }
+                        bloqueo = true;
+                        m_semaforo_respuesta.unlock();
+                    }
                 }
 
             } catch (UnknownHostException e) {
@@ -282,25 +329,16 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
             } catch (IOException e) {
                 e.printStackTrace();
                 m_respuesta = "IOException: " + e.toString();
-            }finally{
-                if(socket_cliente != null){
+            } finally {
+                if (socket_cliente != null) {
                     try {
                         socket_cliente.close();
-                        t_final = System.currentTimeMillis();
-                        m_respuesta += "\nDuración --> "+(t_final - t_inicial)+" ms\n" +
-                                "*** Se cerró la conexión ***\n";
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            Principal.this.runOnUiThread(new Runnable() {
 
-                @Override
-                public void run() {
-                    text_resultados.append(m_respuesta + "\n");
-                }
-            });
         }
 
     }
