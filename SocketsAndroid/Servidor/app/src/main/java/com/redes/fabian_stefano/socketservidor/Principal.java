@@ -1,5 +1,6 @@
 package com.redes.fabian_stefano.socketservidor;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -26,15 +27,20 @@ import java.util.Enumeration;
 
 public class Principal extends AppCompatActivity {
 
+    //Constantes
+    private static final int TAMANO_BUFFER = 2000000;
+    
+    //Elementos de la interfaz
     private TextView ip_asignada;
     private String mensaje = "";
     private TextView resultado;
     private Button btn_empezar;
     private Button btn_cerrar;
-    private ServerSocket socket_servidor;
-    SocketServerThread hilo_servidor;
 
-    private static final int TAMANO_ARCHIVO = 2000000;
+    //Miembros de la clase
+    private ServerSocket m_socket_servidor;
+    private SocketServerThread m_hilo_servidor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,8 +63,8 @@ public class Principal extends AppCompatActivity {
         btn_empezar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hilo_servidor = new SocketServerThread();
-                hilo_servidor.start();  //Pone a correr el servidor
+                m_hilo_servidor = new SocketServerThread();
+                m_hilo_servidor.start();  //Pone a correr el servidor
                 mensaje += "*** El servidor esta corriendo ***\n";
                 Principal.this.runOnUiThread(new Runnable() {
 
@@ -89,6 +95,8 @@ public class Principal extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent cambio_actividad = new Intent(this, Informacion.class);
+            startActivity(cambio_actividad);
             return true;
         }
         if(id== R.id.action_reestablecer){
@@ -102,9 +110,9 @@ public class Principal extends AppCompatActivity {
     private void vaciar_campos(){
         resultado.setText("");
         mensaje="";
-        if(socket_servidor != null){
+        if(m_socket_servidor != null){
             try {
-                socket_servidor.close();
+                m_socket_servidor.close();
                 Principal.this.runOnUiThread(new Runnable() {
 
                     @Override
@@ -122,9 +130,9 @@ public class Principal extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (socket_servidor != null) {
+        if (m_socket_servidor != null) {
             try {
-                socket_servidor.close();
+                m_socket_servidor.close();
                 Principal.this.runOnUiThread(new Runnable() {
 
                     @Override
@@ -146,10 +154,10 @@ public class Principal extends AppCompatActivity {
         @Override
         public void run() {
             try {
-                socket_servidor = new ServerSocket(SocketServerPORT);
+                m_socket_servidor = new ServerSocket(SocketServerPORT);
 
                 while (true) {
-                    Socket socket = socket_servidor.accept();
+                    Socket socket = m_socket_servidor.accept();
                     count++;
                     mensaje += "#" + count + " proveniente de " + socket.getInetAddress()
                             + ":" + socket.getPort() + "\n";
@@ -180,11 +188,11 @@ public class Principal extends AppCompatActivity {
      */
     private class SocketServerReplyThread extends Thread {
 
-        private Socket socket_servidor;
+        private Socket m_socket_servidor;
         int cnt;
 
         SocketServerReplyThread(Socket socket, int c) {
-            this.socket_servidor = socket;
+            this.m_socket_servidor = socket;
             cnt = c;
         }
 
@@ -195,8 +203,8 @@ public class Principal extends AppCompatActivity {
 
             try {
                 //Lee lo que le envia el cliente
-                byte[] buffer_lectura = new byte[TAMANO_ARCHIVO];
-                InputStream input_stream = socket_servidor.getInputStream();
+                byte[] buffer_lectura = new byte[TAMANO_BUFFER];
+                InputStream input_stream = m_socket_servidor.getInputStream();
                 int bytes_leidos = input_stream.read(buffer_lectura, 0, buffer_lectura.length); //Lee el archivo recibido
 
                 //Procede a guardar el archivo recibido
@@ -208,12 +216,12 @@ public class Principal extends AppCompatActivity {
                 buffer_archivo.close();
 
                 //Envia el mensaje de recibido
-                outputStream = socket_servidor.getOutputStream();
+                outputStream = m_socket_servidor.getOutputStream();
                 PrintStream printStream = new PrintStream(outputStream);
                 printStream.print(msgReply);
                 printStream.close();
                 outputStream.close();
-                socket_servidor.close();
+                m_socket_servidor.close();
 
                 mensaje += "respuesta: " + msgReply + "\n";
 

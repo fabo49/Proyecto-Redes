@@ -40,17 +40,20 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Principal extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
+    //Constantes
+    private static final int TAMANO_BUFFER = 2000000;
+
+    //Elementos de la interfaz
     private TextView text_resultados;
     private EditText input_direccion;
     private EditText input_cant_veces;
     private EditText input_puerto;
     private FloatingActionButton fab;
-
     private Spinner m_opciones_tamano;
 
+    //Miembros de la clase
     private String m_tamano_seleccionado;
     private String m_respuesta;
-
     private long m_vec_tiempos[];
     private int m_index_vec_tiempos;
 
@@ -70,8 +73,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         m_opciones_tamano = (Spinner) findViewById(R.id.drop_tamanos);
         llena_spiner();
         m_respuesta = "";
-        m_index_vec_tiempos = 0;
-        
+
 
         m_opciones_tamano.setOnItemSelectedListener(this);
 
@@ -87,6 +89,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     int puerto = Integer.parseInt(input_puerto.getText().toString());
                     m_vec_tiempos = new long[cant_veces];
                     MyClientTask myClientTask = null;
+                    m_index_vec_tiempos = 0;
+                    m_respuesta = "";
 
                     //Hace el numero de envios con la cantidad que digito el usuario.
                     text_resultados.append("*** Se inicia la conexión ***\n");
@@ -94,15 +98,16 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         myClientTask = new MyClientTask(direccion, puerto);
                         myClientTask.start();
                     }
-                    try {
-                        myClientTask.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
                     if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
-                        text_resultados.append(m_respuesta+ "*** Se cierra la conexión ***");
-                        String vector = imprime_vector_tiempos();
-                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), "resultados.csv");
+                        try {
+                            myClientTask.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        text_resultados.append(m_respuesta + "*** Se cierra la conexión ***\n");
+                        String vector = crea_csv();
+                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), "resultados " + m_tamano_seleccionado + ".csv");
                         try {
                             FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
                             PrintStream flujo = new PrintStream(salida_archivo);
@@ -122,11 +127,11 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     }
 
-    private String imprime_vector_tiempos() {
-        String a_retornar = "";
+    private String crea_csv() {
+        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo (ms)\n";
         for (int i = 0; i < m_vec_tiempos.length; ++i) {
             long tmp = m_vec_tiempos[i];
-            a_retornar += String.valueOf(tmp) + ',';
+            a_retornar += String.valueOf(i + 1) + "," + m_tamano_seleccionado + "," + String.valueOf(tmp) + "\n";
         }
         return a_retornar.substring(0, a_retornar.length() - 1);
     }
@@ -183,7 +188,6 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         text_resultados.setText("");
         input_cant_veces.setText("");
         m_respuesta = "";
-
         input_puerto.setText("");
     }
 
@@ -275,13 +279,13 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
             try {
                 String ruta = "";
                 switch (m_tamano_seleccionado) { //El nombre del archivo.
-                    case "128 Kb":
+                    case "128 KB":
                         ruta = "128k.txt";
                         break;
-                    case "256 Kb":
+                    case "256 KB":
                         ruta = "256k.txt";
                         break;
-                    case "512 Kb":
+                    case "512 KB":
                         ruta = "512k.txt";
                         break;
                 }
@@ -302,8 +306,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 stream_salida.flush();
 
 
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
-                byte[] buffer = new byte[1024];
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(TAMANO_BUFFER);
+                byte[] buffer = new byte[TAMANO_BUFFER];
 
                 InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
 
@@ -325,6 +329,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         m_semaforo_respuesta.unlock();
                     }
                 }
+                if (socket_cliente != null) {
+                    socket_cliente.close();
+                }
 
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -333,17 +340,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
             } catch (IOException e) {
                 e.printStackTrace();
                 m_respuesta = "IOException: " + e.toString();
-            } finally {
-                if (socket_cliente != null) {
-                    try {
-                        socket_cliente.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
 
         }
-
     }
 }

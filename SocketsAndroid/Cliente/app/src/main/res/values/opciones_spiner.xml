@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="opciones_spiner">
-        <item>128 Kb</item>
-        <item>256 Kb</item>
-        <item>512 Kb</item>
+        <item>128 KB</item>
+        <item>256 KB</item>
+        <item>512 KB</item>
     </string-array>
 </resources>
