@@ -9,10 +9,9 @@
     <string name="action_info">Información</string>
     <string name="placeholder_puerto">Puerto de destino</string>
     <string name="label_tamano_archivo">Tamaño del archivo</string>
-    <string name="informacion">1. Una vez instalado el .apk del cliente, se debe agrega la carpeta \"archivos\" al directorio de almacenamiento interno del teléfono.\n
-    2. Después de instalar el .apk del servidor, simplemente se da click en el botón que dice \"Levantar sevidor\".\n
-    3. En el Cliente, se ingresa la dirección IP que se muestra en pantalla del servidor junto con el puerto para el envío, se elije el tamaño del archivo que se quiere enviar y se preciona el botón que aparece en la esquina inferior derecha de la pantalla.\n
-    4. Para terminar la recepción de paquetes, en el servidor simplemente se preciona el botón que dice \"Cerrar conexión\" y listo.\n
-    5. Los archivos transferidos quedarán en el directorio raíz del teléfono donde se corrió el servidor con el nombre \"recibido_#secuencia.txt\".\n
-    6. En el directorio raíz del teléfono donde se ejecutó el ciente, se va a encontrar un archivo llamado "resultados.csv" en el cual se guardan los tiempos (en milisegundos) que se tardaron los archivos en llegar hasta el servidor.</string>
+    <string name="informacion">1. Después de instalar el .apk del servidor, simplemente se da click en el botón que dice \"Levantar sevidor\".\n
+    2. En el Cliente, se ingresa la dirección IP que se muestra en pantalla del servidor junto con el puerto para el envío, se elije el tamaño del archivo que se quiere enviar y se preciona el botón que aparece en la esquina inferior derecha de la pantalla.\n
+    3. Para terminar la recepción de paquetes, en el servidor simplemente se preciona el botón que dice \"Cerrar conexión\" y listo.\n
+    4. Los archivos transferidos quedarán en el directorio raíz del teléfono donde se corrió el servidor con el nombre \"recibido_#secuencia.txt\".\n
+    5. En el directorio raíz del teléfono donde se ejecutó el ciente, se va a encontrar un archivo llamado "resultados.csv" en el cual se guardan los tiempos (en milisegundos) que se tardaron los archivos en llegar hasta el servidor.</string>
 </resources>

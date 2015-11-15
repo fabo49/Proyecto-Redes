@@ -296,8 +296,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
                 socket_cliente = new Socket(dstAddress, dstPort);
                 t_inicial = System.currentTimeMillis();
+                InputStream is = getAssets().open(ruta);
 
-                buffer_entrada = new BufferedInputStream(new FileInputStream(archivo));
+                buffer_entrada = new BufferedInputStream(is);
                 buffer_entrada.read(buffer_lectura, 0, buffer_lectura.length);
 
 
