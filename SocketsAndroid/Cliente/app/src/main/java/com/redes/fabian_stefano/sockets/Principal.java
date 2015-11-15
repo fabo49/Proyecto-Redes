@@ -7,6 +7,7 @@ package com.redes.fabian_stefano.sockets;
  * @author Stefano Del Vecchio
  */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -70,6 +71,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         llena_spiner();
         m_respuesta = "";
         m_index_vec_tiempos = 0;
+        
 
         m_opciones_tamano.setOnItemSelectedListener(this);
 
@@ -145,6 +147,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_info) {
+            Intent cambio_actividad = new Intent(this, Informacion.class);
+            startActivity(cambio_actividad);
             return true;
         }
         if (id == R.id.action_clear) {
