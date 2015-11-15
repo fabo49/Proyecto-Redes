@@ -28,7 +28,7 @@ import java.util.Enumeration;
 public class Principal extends AppCompatActivity {
 
     //Constantes
-    private static final int TAMANO_BUFFER = 2000000;
+    private static final int TAMANO_BUFFER = 1000000;
     
     //Elementos de la interfaz
     private TextView ip_asignada;
@@ -158,7 +158,7 @@ public class Principal extends AppCompatActivity {
 
                 while (true) {
                     Socket socket = m_socket_servidor.accept();
-                    count++;
+                    ++count;
                     mensaje += "#" + count + " proveniente de " + socket.getInetAddress()
                             + ":" + socket.getPort() + "\n";
 
@@ -223,8 +223,10 @@ public class Principal extends AppCompatActivity {
                 outputStream.close();
                 m_socket_servidor.close();
 
-                mensaje += "respuesta: " + msgReply + "\n";
-
+            } catch (IOException e) {
+                e.printStackTrace();
+                mensaje += "¡Error! " + e.toString() + "\n";
+            }finally{
                 Principal.this.runOnUiThread(new Runnable() {
 
                     @Override
@@ -232,24 +234,11 @@ public class Principal extends AppCompatActivity {
                         resultado.setText(mensaje);
                     }
                 });
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                mensaje += "¡Error! " + e.toString() + "\n";
             }
-
-            Principal.this.runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    resultado.setText(mensaje);
-                }
-            });
         }
-
     }
 
-    private String obtener_direccion_IP() {
+    private static String obtener_direccion_IP() {
         String ip = "";
         try {
             Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface

@@ -7,12 +7,12 @@ El proyecto es desarrollado en el ambiente del curso CI-1320 (Redes de computado
 ### Manual de uso
 
 ##### Android
-
-1. Después de instalar el ```.apk```del servidor, simplemente se da click en el botón que dice "Levantar sevidor".
-2. En el Cliente, se ingresa la dirección IP que se muestra en pantalla del servidor junto con el puerto para el envío, se elije el tamaño del archivo que se quiere enviar y se preciona el botón que aparece en la esquina inferior derecha de la pantalla.
-3. Para terminar la recepción de paquetes, en el servidor simplemente se preciona el botón que dice "Cerrar conexión" y listo.
-4. Los archivos transferidos quedarán en el directorio raíz del teléfono donde se corrió el servidor con el nombre "recibido_*#secuencia*.txt".
-5. En el directorio raíz del teléfono donde se ejecutó el ciente, se va a encontrar un archivo llamado "resultados *tamaño del archivo*.csv" en el cual se guardan los tiempos (en milisegundos) que se tardaron los archivos en llegar hasta el servidor.
+1. Una vez instalado el ```.apk``` del cliente, se debe agrega la carpeta *archivos* al directorio de almacenamiento interno del teléfono.
+2. Después de instalar el ```.apk```del servidor, simplemente se da click en el botón que dice "Levantar sevidor".
+3. En el Cliente, se ingresa la dirección IP que se muestra en pantalla del servidor junto con el puerto para el envío, se elije el tamaño del archivo que se quiere enviar y se preciona el botón que aparece en la esquina inferior derecha de la pantalla.
+4. Para terminar la recepción de paquetes, en el servidor simplemente se preciona el botón que dice "Cerrar conexión" y listo.
+5. Los archivos transferidos quedarán en el directorio raíz del teléfono donde se corrió el servidor con el nombre "recibido_*#secuencia*.txt".
+6. En el directorio raíz del teléfono donde se ejecutó el ciente, se va a encontrar un archivo llamado "resultados *tamaño del archivo*.csv" en el cual se guardan los tiempos (en milisegundos) que se tardaron los archivos en llegar hasta el servidor.
 
 ###### Requisitos
 * Android 5.0 Lollypop o superior

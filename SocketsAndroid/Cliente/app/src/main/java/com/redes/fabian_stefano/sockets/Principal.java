@@ -41,7 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Principal extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     //Constantes
-    private static final int TAMANO_BUFFER = 2000000;
+    private static final int TAMANO_BUFFER = 1000000;
 
     //Elementos de la interfaz
     private TextView text_resultados;
@@ -93,7 +93,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     m_respuesta = "";
 
                     //Hace el numero de envios con la cantidad que digito el usuario.
-                    text_resultados.append("*** Se inicia la conexión ***\n");
+
                     for (int i = 0; i < cant_veces; ++i) {
                         myClientTask = new MyClientTask(direccion, puerto);
                         myClientTask.start();
@@ -101,20 +101,29 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
                     if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
                         try {
+                            Principal.this.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    text_resultados.append("*** Se inicia la conexión ***\n");
+                                }
+                            });
                             myClientTask.join();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                         text_resultados.append(m_respuesta + "*** Se cierra la conexión ***\n");
                         String vector = crea_csv();
-                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), "resultados " + m_tamano_seleccionado + ".csv");
+                        String nombre_archivo = "resultados "+ m_tamano_seleccionado+".csv";
+                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
                         try {
                             FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
                             PrintStream flujo = new PrintStream(salida_archivo);
                             flujo.print(vector);
                             flujo.close();
                             salida_archivo.close();
-
+                            Snackbar alerta = Snackbar.make(v, "Archivo \""+nombre_archivo+"\" creado", Snackbar.LENGTH_LONG);
+                            alerta.show();
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         } catch (IOException e) {
@@ -275,18 +284,19 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
 
             BufferedInputStream buffer_entrada;
+            boolean bloqueo = false;
 
             try {
                 String ruta = "";
                 switch (m_tamano_seleccionado) { //El nombre del archivo.
-                    case "128 KB":
-                        ruta = "128k.txt";
+                    case "1 KB":
+                        ruta = "1k.txt";
                         break;
-                    case "256 KB":
-                        ruta = "256k.txt";
+                    case "10 KB":
+                        ruta = "10k.txt";
                         break;
-                    case "512 KB":
-                        ruta = "512k.txt";
+                    case "100 KB":
+                        ruta = "100k.txt";
                         break;
                 }
 
@@ -296,9 +306,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
                 socket_cliente = new Socket(dstAddress, dstPort);
                 t_inicial = System.currentTimeMillis();
-                InputStream is = getAssets().open(ruta);
 
-                buffer_entrada = new BufferedInputStream(is);
+                buffer_entrada = new BufferedInputStream(new FileInputStream(archivo));
                 buffer_entrada.read(buffer_lectura, 0, buffer_lectura.length);
 
 
@@ -307,40 +316,41 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 stream_salida.flush();
 
 
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(TAMANO_BUFFER);
-                byte[] buffer = new byte[TAMANO_BUFFER];
-
-                InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
-
                 int bytes_leidos;
-                boolean bloqueo = false;
                 while (!bloqueo) { //trata de adquirir el lock para entrar a la región crítica
                     if (m_semaforo_respuesta.tryLock()) {
+                        bloqueo = true;
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(TAMANO_BUFFER);
+                        byte[] buffer = new byte[TAMANO_BUFFER];
+                        InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
                         while ((bytes_leidos = inputStream.read(buffer)) != -1) {
+                            t_final = System.currentTimeMillis();
                             byteArrayOutputStream.write(buffer, 0, bytes_leidos);
                             m_respuesta += byteArrayOutputStream.toString("UTF-8");
-                            t_final = System.currentTimeMillis();
                             long tiempo_tomado = t_final - t_inicial;
                             m_respuesta += "\nDuración --> " + String.valueOf(tiempo_tomado) + " ms\n";
                             m_vec_tiempos[m_index_vec_tiempos] = tiempo_tomado;
                             ++m_index_vec_tiempos;
-
+                            m_semaforo_respuesta.unlock();
                         }
-                        bloqueo = true;
-                        m_semaforo_respuesta.unlock();
                     }
-                }
-                if (socket_cliente != null) {
-                    socket_cliente.close();
                 }
 
             } catch (UnknownHostException e) {
                 e.printStackTrace();
-                m_respuesta = "UnknownHostException: " + e.toString();
+                m_respuesta = "UnknownHostException: " + e.toString()+'\n';
 
             } catch (IOException e) {
                 e.printStackTrace();
-                m_respuesta = "IOException: " + e.toString();
+                m_respuesta = "IOException: " + e.toString()+'\n';
+            }finally {
+                if (socket_cliente != null) {
+                    try {
+                        socket_cliente.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
         }
