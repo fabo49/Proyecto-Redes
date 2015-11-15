@@ -13,7 +13,7 @@ El proyecto es desarrollado en el ambiente del curso CI-1320 (Redes de computado
 3. En el Cliente, se ingresa la dirección IP que se muestra en pantalla del servidor junto con el puerto para el envío, se elije el tamaño del archivo que se quiere enviar y se preciona el botón que aparece en la esquina inferior derecha de la pantalla.
 4. Para terminar la recepción de paquetes, en el servidor simplemente se preciona el botón que dice "Cerrar conexión" y listo.
 5. Los archivos transferidos quedarán en el directorio raíz del teléfono donde se corrió el servidor con el nombre "recibido_*#secuencia*.txt".
-6. En el directorio raíz del teléfono donde se ejecutó el ciente, se va a encaontrar un archivo llamado "resultados.csv" en el cual se guardan los tiempos (en milisegundos) que se tardaron los archivos en llegar hasta el servidor.
+6. En el directorio raíz del teléfono donde se ejecutó el ciente, se va a encontrar un archivo llamado "resultados.csv" en el cual se guardan los tiempos (en milisegundos) que se tardaron los archivos en llegar hasta el servidor.
 
 ###### Requisitos
 * Android 5.0 Lollypop o superior
