@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="- Fabián Rodríguez\n- Stefano del Vecchio"
+                android:text="- Fabián Rodríguez\n- Stefano Del Vecchio"
                 android:id="@+id/textView4" />
         </LinearLayout>
     </ScrollView>

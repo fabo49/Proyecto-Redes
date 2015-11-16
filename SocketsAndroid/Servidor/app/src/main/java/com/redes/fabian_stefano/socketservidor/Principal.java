@@ -29,7 +29,7 @@ public class Principal extends AppCompatActivity {
 
     //Constantes
     private static final int TAMANO_BUFFER = 1000000;
-    
+
     //Elementos de la interfaz
     private TextView ip_asignada;
     private String mensaje = "";
@@ -47,11 +47,11 @@ public class Principal extends AppCompatActivity {
         setContentView(R.layout.activity_principal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        ip_asignada = (TextView)findViewById(R.id.label_ip_asignada);
+        ip_asignada = (TextView) findViewById(R.id.label_ip_asignada);
         ip_asignada.setText(obtener_direccion_IP());
         resultado = (TextView) findViewById(R.id.label_resultado);
-        btn_cerrar = (Button)findViewById(R.id.btn_cerrar);
-        btn_cerrar.setOnClickListener(new View.OnClickListener(){
+        btn_cerrar = (Button) findViewById(R.id.btn_cerrar);
+        btn_cerrar.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -99,7 +99,7 @@ public class Principal extends AppCompatActivity {
             startActivity(cambio_actividad);
             return true;
         }
-        if(id== R.id.action_reestablecer){
+        if (id == R.id.action_reestablecer) {
             vaciar_campos();
             return true;
         }
@@ -107,10 +107,10 @@ public class Principal extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void vaciar_campos(){
+    private void vaciar_campos() {
         resultado.setText("");
-        mensaje="";
-        if(m_socket_servidor != null){
+        mensaje = "";
+        if (m_socket_servidor != null) {
             try {
                 m_socket_servidor.close();
                 Principal.this.runOnUiThread(new Runnable() {
@@ -126,6 +126,7 @@ public class Principal extends AppCompatActivity {
         }
         ip_asignada.setText(obtener_direccion_IP());
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -183,6 +184,7 @@ public class Principal extends AppCompatActivity {
 
     /**
      * Clase que se encarga de hacer las comunicaciones con el socket cliente.
+     *
      * @author Fabián Rodríguez
      * @author Stefano Del Vecchio
      */
@@ -199,7 +201,6 @@ public class Principal extends AppCompatActivity {
         @Override
         public void run() {
             OutputStream outputStream;
-            String msgReply = "Mensaje #" + cnt + " recibido";
 
             try {
                 //Lee lo que le envia el cliente
@@ -208,14 +209,16 @@ public class Principal extends AppCompatActivity {
                 int bytes_leidos = input_stream.read(buffer_lectura, 0, buffer_lectura.length); //Lee el archivo recibido
 
                 //Procede a guardar el archivo recibido
-                File archivo_guardar = new File(Environment.getExternalStorageDirectory(), "recibido_"+cnt+".txt");
+                File archivo_guardar = new File(Environment.getExternalStorageDirectory(), "recibido_" + cnt + ".txt");
                 FileOutputStream salida_archivo = new FileOutputStream(archivo_guardar);
 
                 BufferedOutputStream buffer_archivo = new BufferedOutputStream(salida_archivo);
                 buffer_archivo.write(buffer_lectura, 0, bytes_leidos);
                 buffer_archivo.close();
 
-                //Envia el mensaje de recibido
+                //Envia el mensaje de recibido (ACK)
+
+                String msgReply = "Mensaje #" + cnt + " ACK";
                 outputStream = m_socket_servidor.getOutputStream();
                 PrintStream printStream = new PrintStream(outputStream);
                 printStream.print(msgReply);
@@ -225,8 +228,8 @@ public class Principal extends AppCompatActivity {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                mensaje += "¡Error! " + e.toString() + "\n";
-            }finally{
+                mensaje += "IOException: " + e.toString() + "\n";
+            } finally {
                 Principal.this.runOnUiThread(new Runnable() {
 
                     @Override
@@ -261,7 +264,7 @@ public class Principal extends AppCompatActivity {
 
         } catch (SocketException e) {
             e.printStackTrace();
-            ip += "¡Error! " + e.toString() + "\n";
+            ip += "SocketException: " + e.toString() + "\n";
 
         }
 

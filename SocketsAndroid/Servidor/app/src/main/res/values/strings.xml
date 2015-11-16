@@ -7,7 +7,7 @@
     <string name="puerto">8080</string>
     <string name="btn_correr">Levantar servidor</string>
     <string name="btn_cerrar">Cerrar el servidor</string>
- <string name="informacion">1. Una vez instalado el .apk del cliente, se debe agrega la carpeta \"archivos\" al directorio de almacenamiento interno del teléfono.
+ <string name="informacion">1. Una vez instalado el .apk del cliente, se debe agrega la carpeta \"archivos\" al directorio de almacenamiento interno del teléfono.\n
     2. Después de instalar el .apk del servidor, simplemente se da click en el botón que dice \"Levantar sevidor\".\n
     3. En el Cliente, se ingresa la dirección IP que se muestra en pantalla del servidor junto con el puerto para el envío, se elije el tamaño del archivo que se quiere enviar y se preciona el botón que aparece en la esquina inferior derecha de la pantalla.\n
     4. Para terminar la recepción de paquetes, en el servidor simplemente se preciona el botón que dice \"Cerrar conexión\" y listo.\n

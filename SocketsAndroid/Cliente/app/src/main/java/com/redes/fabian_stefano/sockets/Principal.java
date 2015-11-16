@@ -35,6 +35,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,6 +61,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     //Para sincronizacion de los hilos
     private final Lock m_semaforo_respuesta = new ReentrantLock();
+    private CyclicBarrier m_barrera;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +96,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     m_respuesta = "";
 
                     //Hace el numero de envios con la cantidad que digito el usuario.
+                    m_barrera = new CyclicBarrier(cant_veces + 1);
 
                     for (int i = 0; i < cant_veces; ++i) {
                         myClientTask = new MyClientTask(direccion, puerto);
@@ -108,13 +112,17 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                                     text_resultados.append("*** Se inicia la conexión ***\n");
                                 }
                             });
-                            myClientTask.join();
+                            m_barrera.await();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            m_respuesta += "InterruptedException en la barrera del padre: " + e.toString() + '\n';
+                        } catch (BrokenBarrierException e) {
+                            e.printStackTrace();
+                            m_respuesta += "BrokenBarrierException en la barrera del padre: " + e.toString() + '\n';
                         }
                         text_resultados.append(m_respuesta + "*** Se cierra la conexión ***\n");
                         String vector = crea_csv();
-                        String nombre_archivo = "resultados "+ m_tamano_seleccionado+".csv";
+                        String nombre_archivo = "resultados " + m_tamano_seleccionado + ".csv";
                         File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
                         try {
                             FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
@@ -122,12 +130,14 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                             flujo.print(vector);
                             flujo.close();
                             salida_archivo.close();
-                            Snackbar alerta = Snackbar.make(v, "Archivo \""+nombre_archivo+"\" creado", Snackbar.LENGTH_LONG);
+                            Snackbar alerta = Snackbar.make(v, "Archivo \"" + nombre_archivo + "\" creado", Snackbar.LENGTH_LONG);
                             alerta.show();
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
+                            m_respuesta += "FileNotFoundException: " + e.toString() + '\n';
                         } catch (IOException e) {
                             e.printStackTrace();
+                            m_respuesta += "IOException: " + e.toString() + '\n';
                         }
                     }
                 }
@@ -338,21 +348,30 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
             } catch (UnknownHostException e) {
                 e.printStackTrace();
-                m_respuesta = "UnknownHostException: " + e.toString()+'\n';
+                m_respuesta += "UnknownHostException: " + e.toString() + '\n';
 
             } catch (IOException e) {
                 e.printStackTrace();
-                m_respuesta = "IOException: " + e.toString()+'\n';
-            }finally {
+                m_respuesta += "IOException: " + e.toString() + '\n';
+            } finally {
                 if (socket_cliente != null) {
                     try {
                         socket_cliente.close();
                     } catch (IOException e) {
                         e.printStackTrace();
+                        m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
+                    }
+                    try {
+                        m_barrera.await();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        m_respuesta += "InterruptedException: en la barrera " + e.toString() + '\n';
+                    } catch (BrokenBarrierException e) {
+                        e.printStackTrace();
+                        m_respuesta += "BlokenBarrierException: en la barrera " + e.toString() + '\n';
                     }
                 }
             }
-
         }
     }
 }
