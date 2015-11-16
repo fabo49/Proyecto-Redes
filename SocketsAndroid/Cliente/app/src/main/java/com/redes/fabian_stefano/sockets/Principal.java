@@ -43,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Principal extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     //Constantes
-    private static final int TAMANO_BUFFER = 1000000;
+    private static final int TAMANO_BUFFER = 1024;
 
     //Elementos de la interfaz
     private TextView text_resultados;
@@ -61,7 +61,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     //Para sincronizacion de los hilos
     private final Lock m_semaforo_respuesta = new ReentrantLock();
-    private CyclicBarrier m_barrera;
+    private final CyclicBarrier m_barrera = new CyclicBarrier(2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,22 +96,19 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     m_respuesta = "";
 
                     //Hace el numero de envios con la cantidad que digito el usuario.
-                    m_barrera = new CyclicBarrier(cant_veces + 1);
+                    Principal.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            text_resultados.append("*** Se inicia la conexión ***\n");
+                        }
+                    });
 
                     for (int i = 0; i < cant_veces; ++i) {
                         myClientTask = new MyClientTask(direccion, puerto);
                         myClientTask.start();
-                    }
-
-                    if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
                         try {
-                            Principal.this.runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    text_resultados.append("*** Se inicia la conexión ***\n");
-                                }
-                            });
+                            //Se espera a que termine el hilo para correr otro nuevo
                             m_barrera.await();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -120,6 +117,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                             e.printStackTrace();
                             m_respuesta += "BrokenBarrierException en la barrera del padre: " + e.toString() + '\n';
                         }
+                    }
+
+                    if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
                         text_resultados.append(m_respuesta + "*** Se cierra la conexión ***\n");
                         String vector = crea_csv();
                         String nombre_archivo = "resultados " + m_tamano_seleccionado + ".csv";
