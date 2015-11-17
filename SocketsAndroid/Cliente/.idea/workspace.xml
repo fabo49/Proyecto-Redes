@@ -43,9 +43,36 @@
       <file leaf-file-name="Principal.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/redes/fabian_stefano/sockets/Principal.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.8492462">
-              <caret line="150" column="67" selection-start-line="150" selection-start-column="67" selection-end-line="150" selection-end-column="67" />
-              <folding />
+            <state vertical-scroll-proportion="0.6834171">
+              <caret line="106" column="44" selection-start-line="106" selection-start-column="44" selection-end-line="106" selection-end-column="44" />
+              <folding>
+                <element signature="e#3038#8791#0" expanded="true" />
+                <element signature="e#4706#4955#0" expanded="true" />
+                <element signature="e#4954#4955#0" expanded="true" />
+                <element signature="e#5242#5491#0" expanded="true" />
+                <element signature="e#5490#5491#0" expanded="true" />
+                <element signature="e#5880#6129#0" expanded="true" />
+                <element signature="e#6128#6129#0" expanded="true" />
+                <element signature="e#7268#7537#0" expanded="true" />
+                <element signature="e#7536#7537#0" expanded="true" />
+                <element signature="e#7811#8080#0" expanded="true" />
+                <element signature="e#8079#8080#0" expanded="true" />
+                <element signature="e#8282#8531#0" expanded="true" />
+                <element signature="e#8530#8531#0" expanded="true" />
+                <element signature="e#8790#8791#0" expanded="true" />
+                <element signature="e#16805#17054#0" expanded="true" />
+                <element signature="e#17053#17054#0" expanded="true" />
+                <element signature="e#17544#17773#0" expanded="true" />
+                <element signature="e#17772#17773#0" expanded="true" />
+                <element signature="e#18024#18213#0" expanded="true" />
+                <element signature="e#18212#18213#0" expanded="true" />
+                <element signature="e#18428#18617#0" expanded="true" />
+                <element signature="e#18616#18617#0" expanded="true" />
+                <element signature="e#19023#19232#0" expanded="true" />
+                <element signature="e#19231#19232#0" expanded="true" />
+                <element signature="e#19477#19686#0" expanded="true" />
+                <element signature="e#19685#19686#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -1951,14 +1978,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="751" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32956383" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32913387" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32913387" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32956383" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41732284" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
@@ -2001,31 +2028,43 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/redes/fabian_stefano/sockets/Principal.java</url>
-          <line>332</line>
-          <properties />
-          <option name="timeStamp" value="5" />
-        </line-breakpoint>
-      </breakpoints>
-      <option name="time" value="6" />
+      <option name="time" value="8" />
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="app">
-        <watch expression="buffer_lectura" language="JAVA" custom="" />
-        <watch expression="((ReentrantLock) m_semaforo_respuesta).getOwner()" language="JAVA" custom="" />
-        <watch expression="m_respuesta" language="JAVA" custom="" />
-        <watch expression="m_vec_tiempos" language="JAVA" custom="" />
-      </configuration>
-    </watches-manager>
+    <watches-manager />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/redes/fabian_stefano/sockets/Principal.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="335" column="21" selection-start-line="335" selection-start-column="21" selection-end-line="335" selection-end-column="21" />
-          <folding />
+          <folding>
+            <element signature="e#3038#8791#0" expanded="true" />
+            <element signature="e#4706#4955#0" expanded="true" />
+            <element signature="e#4954#4955#0" expanded="true" />
+            <element signature="e#5242#5491#0" expanded="true" />
+            <element signature="e#5490#5491#0" expanded="true" />
+            <element signature="e#5880#6129#0" expanded="true" />
+            <element signature="e#6128#6129#0" expanded="true" />
+            <element signature="e#7268#7537#0" expanded="true" />
+            <element signature="e#7536#7537#0" expanded="true" />
+            <element signature="e#7811#8080#0" expanded="true" />
+            <element signature="e#8079#8080#0" expanded="true" />
+            <element signature="e#8282#8531#0" expanded="true" />
+            <element signature="e#8530#8531#0" expanded="true" />
+            <element signature="e#8790#8791#0" expanded="true" />
+            <element signature="e#16805#17054#0" expanded="true" />
+            <element signature="e#17053#17054#0" expanded="true" />
+            <element signature="e#17544#17773#0" expanded="true" />
+            <element signature="e#17772#17773#0" expanded="true" />
+            <element signature="e#18024#18213#0" expanded="true" />
+            <element signature="e#18212#18213#0" expanded="true" />
+            <element signature="e#18428#18617#0" expanded="true" />
+            <element signature="e#18616#18617#0" expanded="true" />
+            <element signature="e#19023#19232#0" expanded="true" />
+            <element signature="e#19231#19232#0" expanded="true" />
+            <element signature="e#19477#19686#0" expanded="true" />
+            <element signature="e#19685#19686#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2063,7 +2102,34 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="304" column="0" selection-start-line="304" selection-start-column="0" selection-end-line="304" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#3038#8791#0" expanded="true" />
+            <element signature="e#4706#4955#0" expanded="true" />
+            <element signature="e#4954#4955#0" expanded="true" />
+            <element signature="e#5242#5491#0" expanded="true" />
+            <element signature="e#5490#5491#0" expanded="true" />
+            <element signature="e#5880#6129#0" expanded="true" />
+            <element signature="e#6128#6129#0" expanded="true" />
+            <element signature="e#7268#7537#0" expanded="true" />
+            <element signature="e#7536#7537#0" expanded="true" />
+            <element signature="e#7811#8080#0" expanded="true" />
+            <element signature="e#8079#8080#0" expanded="true" />
+            <element signature="e#8282#8531#0" expanded="true" />
+            <element signature="e#8530#8531#0" expanded="true" />
+            <element signature="e#8790#8791#0" expanded="true" />
+            <element signature="e#16805#17054#0" expanded="true" />
+            <element signature="e#17053#17054#0" expanded="true" />
+            <element signature="e#17544#17773#0" expanded="true" />
+            <element signature="e#17772#17773#0" expanded="true" />
+            <element signature="e#18024#18213#0" expanded="true" />
+            <element signature="e#18212#18213#0" expanded="true" />
+            <element signature="e#18428#18617#0" expanded="true" />
+            <element signature="e#18616#18617#0" expanded="true" />
+            <element signature="e#19023#19232#0" expanded="true" />
+            <element signature="e#19231#19232#0" expanded="true" />
+            <element signature="e#19477#19686#0" expanded="true" />
+            <element signature="e#19685#19686#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2103,7 +2169,34 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#3038#8791#0" expanded="true" />
+            <element signature="e#4706#4955#0" expanded="true" />
+            <element signature="e#4954#4955#0" expanded="true" />
+            <element signature="e#5242#5491#0" expanded="true" />
+            <element signature="e#5490#5491#0" expanded="true" />
+            <element signature="e#5880#6129#0" expanded="true" />
+            <element signature="e#6128#6129#0" expanded="true" />
+            <element signature="e#7268#7537#0" expanded="true" />
+            <element signature="e#7536#7537#0" expanded="true" />
+            <element signature="e#7811#8080#0" expanded="true" />
+            <element signature="e#8079#8080#0" expanded="true" />
+            <element signature="e#8282#8531#0" expanded="true" />
+            <element signature="e#8530#8531#0" expanded="true" />
+            <element signature="e#8790#8791#0" expanded="true" />
+            <element signature="e#16805#17054#0" expanded="true" />
+            <element signature="e#17053#17054#0" expanded="true" />
+            <element signature="e#17544#17773#0" expanded="true" />
+            <element signature="e#17772#17773#0" expanded="true" />
+            <element signature="e#18024#18213#0" expanded="true" />
+            <element signature="e#18212#18213#0" expanded="true" />
+            <element signature="e#18428#18617#0" expanded="true" />
+            <element signature="e#18616#18617#0" expanded="true" />
+            <element signature="e#19023#19232#0" expanded="true" />
+            <element signature="e#19231#19232#0" expanded="true" />
+            <element signature="e#19477#19686#0" expanded="true" />
+            <element signature="e#19685#19686#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2195,9 +2288,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/redes/fabian_stefano/sockets/Principal.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8492462">
-          <caret line="150" column="67" selection-start-line="150" selection-start-column="67" selection-end-line="150" selection-end-column="67" />
-          <folding />
+        <state vertical-scroll-proportion="0.6834171">
+          <caret line="106" column="44" selection-start-line="106" selection-start-column="44" selection-end-line="106" selection-end-column="44" />
+          <folding>
+            <element signature="e#3038#8791#0" expanded="true" />
+            <element signature="e#4706#4955#0" expanded="true" />
+            <element signature="e#4954#4955#0" expanded="true" />
+            <element signature="e#5242#5491#0" expanded="true" />
+            <element signature="e#5490#5491#0" expanded="true" />
+            <element signature="e#5880#6129#0" expanded="true" />
+            <element signature="e#6128#6129#0" expanded="true" />
+            <element signature="e#7268#7537#0" expanded="true" />
+            <element signature="e#7536#7537#0" expanded="true" />
+            <element signature="e#7811#8080#0" expanded="true" />
+            <element signature="e#8079#8080#0" expanded="true" />
+            <element signature="e#8282#8531#0" expanded="true" />
+            <element signature="e#8530#8531#0" expanded="true" />
+            <element signature="e#8790#8791#0" expanded="true" />
+            <element signature="e#16805#17054#0" expanded="true" />
+            <element signature="e#17053#17054#0" expanded="true" />
+            <element signature="e#17544#17773#0" expanded="true" />
+            <element signature="e#17772#17773#0" expanded="true" />
+            <element signature="e#18024#18213#0" expanded="true" />
+            <element signature="e#18212#18213#0" expanded="true" />
+            <element signature="e#18428#18617#0" expanded="true" />
+            <element signature="e#18616#18617#0" expanded="true" />
+            <element signature="e#19023#19232#0" expanded="true" />
+            <element signature="e#19231#19232#0" expanded="true" />
+            <element signature="e#19477#19686#0" expanded="true" />
+            <element signature="e#19685#19686#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

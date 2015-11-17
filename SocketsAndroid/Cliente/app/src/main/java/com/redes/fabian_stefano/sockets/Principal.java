@@ -34,10 +34,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -57,8 +59,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     //Miembros de la clase
     private String m_tamano_seleccionado;
     private String m_respuesta;
-    private long m_vec_tiempos[];
+    private double m_vec_tiempos[];
     private int m_index_vec_tiempos;
+    private boolean m_exito;
 
     //Para sincronizacion de los hilos
     private final Lock m_semaforo_respuesta = new ReentrantLock();
@@ -77,6 +80,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         m_opciones_tamano = (Spinner) findViewById(R.id.drop_tamanos);
         llena_spiner();
         m_respuesta = "";
+        m_exito = true;
 
 
         m_opciones_tamano.setOnItemSelectedListener(this);
@@ -87,23 +91,27 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
             @Override
             public void onClick(View v) {
                 if (validaciones(v)) {
-                    //Obtiene los datos
-                    int cant_veces = Integer.parseInt(input_cant_veces.getText().toString());
-                    String direccion = input_direccion.getText().toString();
-                    int puerto = Integer.parseInt(input_puerto.getText().toString());
-                    m_vec_tiempos = new long[cant_veces];
-                    MyClientTask myClientTask = null;
-                    m_index_vec_tiempos = 0;
-                    m_respuesta = "";
+
+                    m_respuesta = "*** Se inicia la conexión ***\n";
 
                     //Hace el numero de envios con la cantidad que digito el usuario.
                     Principal.this.runOnUiThread(new Runnable() {
 
                         @Override
                         public void run() {
-                            text_resultados.append("*** Se inicia la conexión ***\n");
+                            text_resultados.setText(m_respuesta);
                         }
                     });
+
+                    //Obtiene los datos
+                    m_index_vec_tiempos = 0;
+                    m_exito = true;
+                    int cant_veces = Integer.parseInt(input_cant_veces.getText().toString());
+                    String direccion = input_direccion.getText().toString();
+                    int puerto = Integer.parseInt(input_puerto.getText().toString());
+                    m_vec_tiempos = new double[cant_veces];
+                    MyClientTask myClientTask = null;
+
 
                     for (int i = 0; i < cant_veces; ++i) {
                         myClientTask = new MyClientTask(direccion, puerto);
@@ -114,31 +122,80 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             m_respuesta += "InterruptedException en la barrera del padre: " + e.toString() + '\n';
+                            Principal.this.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    text_resultados.setText(m_respuesta);
+                                }
+                            });
                         } catch (BrokenBarrierException e) {
                             e.printStackTrace();
                             m_respuesta += "BrokenBarrierException en la barrera del padre: " + e.toString() + '\n';
+                            Principal.this.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    text_resultados.setText(m_respuesta);
+                                }
+                            });
                         }
                     }
 
                     if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
-                        text_resultados.append(m_respuesta + "*** Se cierra la conexión ***\n");
-                        String vector = crea_csv();
-                        String nombre_archivo = "resultados " + m_tamano_seleccionado + ".csv";
-                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
-                        try {
-                            FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
-                            PrintStream flujo = new PrintStream(salida_archivo);
-                            flujo.print(vector);
-                            flujo.close();
-                            salida_archivo.close();
-                            Snackbar alerta = Snackbar.make(v, "Archivo \"" + nombre_archivo + "\" creado", Snackbar.LENGTH_LONG);
+                        if (m_exito) { //Verifica que la conexión se hizo bien.
+                            m_respuesta += "*** Se cierra la conexión ***\n";
+                            Principal.this.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    text_resultados.setText(m_respuesta);
+                                }
+                            });
+                            String vector = crea_csv();
+                            String nombre_archivo = "resultados " + m_tamano_seleccionado + ".csv";
+                            File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
+                            try {
+                                FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
+                                PrintStream flujo = new PrintStream(salida_archivo);
+                                flujo.print(vector);
+                                flujo.close();
+                                salida_archivo.close();
+                                Snackbar alerta = Snackbar.make(v, "Archivo \"" + nombre_archivo + "\" creado", Snackbar.LENGTH_LONG);
+                                alerta.show();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                                m_respuesta += "FileNotFoundException: archivo a guardar " + e.toString() + '\n';
+                                Principal.this.runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        text_resultados.setText(m_respuesta);
+                                    }
+                                });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                m_respuesta += "IOException: archivo a guardar" + e.toString() + '\n';
+                                Principal.this.runOnUiThread(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        text_resultados.setText(m_respuesta);
+                                    }
+                                });
+                            }
+                        } else {
+                            m_respuesta += "*** Se cierra la conexión ***\n";
+
+                            Principal.this.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    text_resultados.setText(m_respuesta);
+                                }
+                            });
+                            Snackbar alerta = Snackbar.make(v, "Se presentó un error en la conexión", Snackbar.LENGTH_LONG);
                             alerta.show();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                            m_respuesta += "FileNotFoundException: " + e.toString() + '\n';
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            m_respuesta += "IOException: " + e.toString() + '\n';
                         }
                     }
                 }
@@ -148,9 +205,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     private String crea_csv() {
-        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo (ns)\n";
+        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo (s)\n";
         for (int i = 0; i < m_vec_tiempos.length; ++i) {
-            long tmp = m_vec_tiempos[i];
+            double tmp = m_vec_tiempos[i];
             a_retornar += String.valueOf(i + 1) + "," + m_tamano_seleccionado + "," + String.valueOf(tmp) + "\n";
         }
         return a_retornar.substring(0, a_retornar.length() - 1);
@@ -340,9 +397,18 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                             byteArrayOutputStream.write(buffer, 0, bytes_leidos);
                             m_respuesta += byteArrayOutputStream.toString("UTF-8");
                             long tiempo_tomado = t_final - t_inicial;
-                            m_respuesta += "\nDuración --> " + String.valueOf(tiempo_tomado) + " ns\n";
-                            m_vec_tiempos[m_index_vec_tiempos] = tiempo_tomado;
+                            double tiempo_segundos = (double) tiempo_tomado / 1000000000.0; //Convierte de nanosegundos a segundos
+                            tiempo_segundos = new BigDecimal(tiempo_segundos).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(); //Trunca el numero, le da 4 decimales de presicion
+                            m_respuesta += "\nDuración --> " + String.valueOf(tiempo_segundos) + " s\n";
+                            m_vec_tiempos[m_index_vec_tiempos] = tiempo_segundos;
                             ++m_index_vec_tiempos;
+                            Principal.this.runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    text_resultados.setText(m_respuesta);
+                                }
+                            });
                             m_semaforo_respuesta.unlock();
                         }
                     }
@@ -353,24 +419,60 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     } catch (IOException e) {
                         e.printStackTrace();
                         m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
+                        Principal.this.runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                text_resultados.setText(m_respuesta);
+                            }
+                        });
                     }
                 }
-            }catch (UnknownHostException e) {
+            } catch (UnknownHostException e) {
                 e.printStackTrace();
                 m_respuesta += "UnknownHostException: " + e.toString() + '\n';
+                Principal.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        text_resultados.setText(m_respuesta);
+                    }
+                });
 
             } catch (IOException e) {
                 e.printStackTrace();
-                m_respuesta += "IOException: " + e.toString() + '\n';
+                m_respuesta += "IOException: al hacer la conexión " + e.toString() + '\n';
+                Principal.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        text_resultados.setText(m_respuesta);
+                    }
+                });
+                m_exito = false;
             } finally {
                 try {
-                    m_barrera.await(); //Para liberar la barrera
+                    m_barrera.await(); //Sincroniza que solo exista un hilo corriendo
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     m_respuesta += "InterruptedException: en la barrera " + e.toString() + '\n';
+                    Principal.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            text_resultados.setText(m_respuesta);
+                        }
+                    });
                 } catch (BrokenBarrierException e) {
                     e.printStackTrace();
                     m_respuesta += "BlokenBarrierException: en la barrera " + e.toString() + '\n';
+                    Principal.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            text_resultados.setText(m_respuesta);
+                        }
+                    });
                 }
             }
 
