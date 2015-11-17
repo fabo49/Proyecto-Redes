@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.system.ErrnoException;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -147,7 +148,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     private String crea_csv() {
-        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo (ms)\n";
+        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo (ns)\n";
         for (int i = 0; i < m_vec_tiempos.length; ++i) {
             long tmp = m_vec_tiempos[i];
             a_retornar += String.valueOf(i + 1) + "," + m_tamano_seleccionado + "," + String.valueOf(tmp) + "\n";
@@ -290,7 +291,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         public void run() {
             long t_inicial = 0;
             long t_final = 0;
-            Socket socket_cliente = null;
+            Socket socket_cliente;
 
 
             BufferedInputStream buffer_entrada;
@@ -314,8 +315,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/" + ruta);
                 byte[] buffer_lectura = new byte[(int) archivo.length()];
 
+
+                t_inicial = System.nanoTime();
                 socket_cliente = new Socket(dstAddress, dstPort);
-                t_inicial = System.currentTimeMillis();
 
                 buffer_entrada = new BufferedInputStream(new FileInputStream(archivo));
                 buffer_entrada.read(buffer_lectura, 0, buffer_lectura.length);
@@ -334,26 +336,17 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         byte[] buffer = new byte[TAMANO_BUFFER];
                         InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
                         while ((bytes_leidos = inputStream.read(buffer)) != -1) {
-                            t_final = System.currentTimeMillis();
+                            t_final = System.nanoTime();
                             byteArrayOutputStream.write(buffer, 0, bytes_leidos);
                             m_respuesta += byteArrayOutputStream.toString("UTF-8");
                             long tiempo_tomado = t_final - t_inicial;
-                            m_respuesta += "\nDuración --> " + String.valueOf(tiempo_tomado) + " ms\n";
+                            m_respuesta += "\nDuración --> " + String.valueOf(tiempo_tomado) + " ns\n";
                             m_vec_tiempos[m_index_vec_tiempos] = tiempo_tomado;
                             ++m_index_vec_tiempos;
                             m_semaforo_respuesta.unlock();
                         }
                     }
                 }
-
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                m_respuesta += "UnknownHostException: " + e.toString() + '\n';
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                m_respuesta += "IOException: " + e.toString() + '\n';
-            } finally {
                 if (socket_cliente != null) {
                     try {
                         socket_cliente.close();
@@ -361,17 +354,26 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         e.printStackTrace();
                         m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
                     }
-                    try {
-                        m_barrera.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        m_respuesta += "InterruptedException: en la barrera " + e.toString() + '\n';
-                    } catch (BrokenBarrierException e) {
-                        e.printStackTrace();
-                        m_respuesta += "BlokenBarrierException: en la barrera " + e.toString() + '\n';
-                    }
+                }
+            }catch (UnknownHostException e) {
+                e.printStackTrace();
+                m_respuesta += "UnknownHostException: " + e.toString() + '\n';
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                m_respuesta += "IOException: " + e.toString() + '\n';
+            } finally {
+                try {
+                    m_barrera.await(); //Para liberar la barrera
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    m_respuesta += "InterruptedException: en la barrera " + e.toString() + '\n';
+                } catch (BrokenBarrierException e) {
+                    e.printStackTrace();
+                    m_respuesta += "BlokenBarrierException: en la barrera " + e.toString() + '\n';
                 }
             }
+
         }
     }
 }
