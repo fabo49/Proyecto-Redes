@@ -29,9 +29,11 @@ public class Principal extends AppCompatActivity {
 
     //Constantes
     private static final int TAMANO_BUFFER = 1000000;
+    private static final int puerto_servidor = 8080;
 
     //Elementos de la interfaz
     private TextView ip_asignada;
+    private TextView puerto_asignado;
     private String mensaje = "";
     private TextView resultado;
     private Button btn_empezar;
@@ -58,6 +60,9 @@ public class Principal extends AppCompatActivity {
                 vaciar_campos();
             }
         });
+
+        puerto_asignado = (TextView)findViewById(R.id.label_puerto_asignado);
+        puerto_asignado.setText(String.valueOf(puerto_servidor));
 
         btn_empezar = (Button) findViewById(R.id.btn_correr);
         btn_empezar.setOnClickListener(new View.OnClickListener() {
@@ -148,14 +153,12 @@ public class Principal extends AppCompatActivity {
     }
 
     private class SocketServerThread extends Thread {
-
-        static final int SocketServerPORT = 8080;
         int count = 0;
 
         @Override
         public void run() {
             try {
-                m_socket_servidor = new ServerSocket(SocketServerPORT);
+                m_socket_servidor = new ServerSocket(puerto_servidor);
 
                 while (true) {
                     Socket socket = m_socket_servidor.accept();

@@ -65,7 +65,6 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     //Para sincronizacion de los hilos
     private final Lock m_semaforo_respuesta = new ReentrantLock();
-    private final CyclicBarrier m_barrera = new CyclicBarrier(2);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +81,9 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
         m_respuesta = "";
         m_exito = true;
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         m_opciones_tamano.setOnItemSelectedListener(this);
-
-        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,93 +108,54 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     String direccion = input_direccion.getText().toString();
                     int puerto = Integer.parseInt(input_puerto.getText().toString());
                     m_vec_tiempos = new double[cant_veces];
-                    MyClientTask myClientTask = null;
 
-
-                    for (int i = 0; i < cant_veces; ++i) {
-                        myClientTask = new MyClientTask(direccion, puerto);
-                        myClientTask.start();
-                        try {
-                            //Se espera a que termine el hilo para correr otro nuevo
-                            m_barrera.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            m_respuesta += "InterruptedException en la barrera del padre: " + e.toString() + '\n';
-                            Principal.this.runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    text_resultados.setText(m_respuesta);
-                                }
-                            });
-                        } catch (BrokenBarrierException e) {
-                            e.printStackTrace();
-                            m_respuesta += "BrokenBarrierException en la barrera del padre: " + e.toString() + '\n';
-                            Principal.this.runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    text_resultados.setText(m_respuesta);
-                                }
-                            });
-                        }
+                    HiloPreparador hilo_preparador = new HiloPreparador(direccion, puerto, cant_veces, m_tamano_seleccionado);
+                    hilo_preparador.start(); //Corre el hilo
+                    try {
+                        hilo_preparador.join(); //Espera a que termine el hilo
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
 
-                    if (Thread.currentThread().getId() == 1) { // Hilo principal, despues de que terminan todos los demas
-                        if (m_exito) { //Verifica que la conexión se hizo bien.
-                            m_respuesta += "*** Se cierra la conexión ***\n";
-                            Principal.this.runOnUiThread(new Runnable() {
+                    if (m_exito) { //Verifica que la conexión se hizo bien.
+                        m_respuesta += "*** Se cierra la conexión ***\n";
+                        Principal.this.runOnUiThread(new Runnable() {
 
-                                @Override
-                                public void run() {
-                                    text_resultados.setText(m_respuesta);
-                                }
-                            });
-                            String vector = crea_csv();
-                            String nombre_archivo = "resultados " + m_tamano_seleccionado + ".csv";
-                            File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
-                            try {
-                                FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
-                                PrintStream flujo = new PrintStream(salida_archivo);
-                                flujo.print(vector);
-                                flujo.close();
-                                salida_archivo.close();
-                                Snackbar alerta = Snackbar.make(v, "Archivo \"" + nombre_archivo + "\" creado", Snackbar.LENGTH_LONG);
-                                alerta.show();
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                                m_respuesta += "FileNotFoundException: archivo a guardar " + e.toString() + '\n';
-                                Principal.this.runOnUiThread(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        text_resultados.setText(m_respuesta);
-                                    }
-                                });
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                                m_respuesta += "IOException: archivo a guardar" + e.toString() + '\n';
-                                Principal.this.runOnUiThread(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        text_resultados.setText(m_respuesta);
-                                    }
-                                });
+                            @Override
+                            public void run() {
+                                text_resultados.setText(m_respuesta);
                             }
-                        } else {
-                            m_respuesta += "*** Se cierra la conexión ***\n";
-
-                            Principal.this.runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    text_resultados.setText(m_respuesta);
-                                }
-                            });
-                            Snackbar alerta = Snackbar.make(v, "Se presentó un error en la conexión", Snackbar.LENGTH_LONG);
+                        });
+                        String vector = crea_csv();
+                        String nombre_archivo = "resultados_" + m_tamano_seleccionado + ".csv";
+                        File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
+                        try {
+                            FileOutputStream salida_archivo = new FileOutputStream(archivo_resultados);
+                            PrintStream flujo = new PrintStream(salida_archivo);
+                            flujo.print(vector);
+                            flujo.close();
+                            salida_archivo.close();
+                            Snackbar alerta = Snackbar.make(v, "Archivo \"" + nombre_archivo + "\" creado", Snackbar.LENGTH_LONG);
                             alerta.show();
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                            m_respuesta += "FileNotFoundException: archivo a guardar " + e.toString() + '\n';
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            m_respuesta += "IOException: archivo a guardar" + e.toString() + '\n';
                         }
+                    } else {
+                        m_respuesta += "*** Se cierra la conexión ***\n";
+
+                        Principal.this.runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                text_resultados.setText(m_respuesta);
+                            }
+                        });
+                        Snackbar alerta = Snackbar.make(v, "Se presentó un error en la conexión", Snackbar.LENGTH_LONG);
+                        alerta.show();
                     }
                 }
             }
@@ -328,53 +287,99 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     /**
+     * Se encarga de preparar las cosas para el hilo, carga el archivo una vez y se lo envía a cada hilo para la ejecución.
+     *
+     * @author Fabián Rodríguez
+     * @author Stefano del Vecchio
+     */
+    public class HiloPreparador extends Thread {
+        private String direccion_destino;
+        private int puerto_destino;
+        private int num_ejecuciones;
+        private String tam_seleccionado;
+
+        HiloPreparador(String direccion, int puerto, int repeticiones, String tamano) {
+            direccion_destino = direccion;
+            puerto_destino = puerto;
+            num_ejecuciones = repeticiones;
+            tam_seleccionado = tamano;
+        }
+
+        @Override
+        public void run() {
+            String ruta = "";
+            switch (tam_seleccionado) { //El nombre del archivo.
+                case "1 KB":
+                    ruta = "1k.txt";
+                    break;
+                case "10 KB":
+                    ruta = "10k.txt";
+                    break;
+                case "100 KB":
+                    ruta = "100k.txt";
+                    break;
+            }
+            File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/" + ruta);
+
+
+            for (int i = 0; i < num_ejecuciones; ++i) {
+                try {
+                    Socket socket = new Socket(direccion_destino, puerto_destino);
+                    TareaCliente proc_cliente = new TareaCliente(socket, archivo);
+                    proc_cliente.start();
+                    proc_cliente.join();    //Espero a que termine de correr el hilo "proc_cliente"
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    m_respuesta += "IOException: al crear el socket " +e.toString() + '\n';
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    m_respuesta += "InterruptedException: al hacer join" + e.toString() + '\n';
+                }
+
+                Principal.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        text_resultados.setText(m_respuesta);
+                    }
+                });
+            }
+
+
+        }
+    }
+
+    /**
      * Clase que se encarga de realizar la conexión por medio de los sockets. Lo realiza en un hilo separado ya que todas las
      * operaciones de red se tienen que realizar en un hilo en el "background".
      *
      * @author Fabián Rodríguez
      * @author Stefano Del Vecchio
      */
-    public class MyClientTask extends Thread {
+    public class TareaCliente extends Thread {
 
-        String dstAddress;
-        int dstPort;
+        private Socket socket_cliente;
+        private File archivo;
 
-        MyClientTask(String addr, int port) {
-            dstAddress = addr;
-            dstPort = port;
+        TareaCliente(Socket socket, File archivo_leido) {
+            socket_cliente = socket;
+            archivo = archivo_leido;
         }
 
         @Override
         public void run() {
             long t_inicial = 0;
             long t_final = 0;
-            Socket socket_cliente;
-
 
             BufferedInputStream buffer_entrada;
             boolean bloqueo = false;
 
             try {
-                String ruta = "";
-                switch (m_tamano_seleccionado) { //El nombre del archivo.
-                    case "1 KB":
-                        ruta = "1k.txt";
-                        break;
-                    case "10 KB":
-                        ruta = "10k.txt";
-                        break;
-                    case "100 KB":
-                        ruta = "100k.txt";
-                        break;
-                }
 
-                //Carga el archivo
-                File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/" + ruta);
                 byte[] buffer_lectura = new byte[(int) archivo.length()];
 
 
                 t_inicial = System.nanoTime();
-                socket_cliente = new Socket(dstAddress, dstPort);
 
                 buffer_entrada = new BufferedInputStream(new FileInputStream(archivo));
                 buffer_entrada.read(buffer_lectura, 0, buffer_lectura.length);
@@ -402,13 +407,6 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                             m_respuesta += "\nDuración --> " + String.valueOf(tiempo_segundos) + " s\n";
                             m_vec_tiempos[m_index_vec_tiempos] = tiempo_segundos;
                             ++m_index_vec_tiempos;
-                            Principal.this.runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    text_resultados.setText(m_respuesta);
-                                }
-                            });
                             m_semaforo_respuesta.unlock();
                         }
                     }
@@ -419,60 +417,22 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     } catch (IOException e) {
                         e.printStackTrace();
                         m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
-                        Principal.this.runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                text_resultados.setText(m_respuesta);
-                            }
-                        });
                     }
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 m_respuesta += "UnknownHostException: " + e.toString() + '\n';
-                Principal.this.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        text_resultados.setText(m_respuesta);
-                    }
-                });
 
             } catch (IOException e) {
                 e.printStackTrace();
                 m_respuesta += "IOException: al hacer la conexión " + e.toString() + '\n';
-                Principal.this.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        text_resultados.setText(m_respuesta);
-                    }
-                });
                 m_exito = false;
             } finally {
                 try {
-                    m_barrera.await(); //Sincroniza que solo exista un hilo corriendo
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    m_respuesta += "InterruptedException: en la barrera " + e.toString() + '\n';
-                    Principal.this.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            text_resultados.setText(m_respuesta);
-                        }
-                    });
-                } catch (BrokenBarrierException e) {
-                    e.printStackTrace();
-                    m_respuesta += "BlokenBarrierException: en la barrera " + e.toString() + '\n';
-                    Principal.this.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            text_resultados.setText(m_respuesta);
-                        }
-                    });
+                    m_respuesta += "InterruptedException: en el sleep" + e.toString() + '\n';
                 }
             }
 
