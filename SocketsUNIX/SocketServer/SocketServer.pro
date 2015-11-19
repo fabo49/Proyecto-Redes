@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2015-11-17T14:46:55
+# Project created by QtCreator 2015-11-18T21:01:44
 #
 #-------------------------------------------------
 
@@ -8,19 +8,15 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Sockets
+TARGET = SocketServer
 TEMPLATE = app
 
-CONFIG += c++11
 
-SOURCES +=\
-        cliente.cpp \
-    main.cpp \
-    chrono.cpp \
+SOURCES += main.cpp\
+        server.cpp \
     socket.cpp
 
-HEADERS  += cliente.h \
-    chrono.h \
+HEADERS  += server.h \
     socket.h
 
-FORMS    += cliente.ui
+FORMS    += server.ui

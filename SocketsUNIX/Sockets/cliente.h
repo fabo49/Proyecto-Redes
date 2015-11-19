@@ -13,7 +13,14 @@ class Cliente : public QMainWindow
 
 public:
     explicit Cliente(QWidget *parent = 0);
-    ~Cliente();
+    virtual ~Cliente();
+    int corre();
+
+
+private slots:
+    void on_btnAceptar_clicked();
+
+    void on_btnRestablecer_clicked();
 
 private:
     Ui::Cliente *ui;
