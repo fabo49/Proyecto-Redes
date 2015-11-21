@@ -119,13 +119,6 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
                     if (m_exito) { //Verifica que la conexión se hizo bien.
                         m_respuesta += "*** Se cierra la conexión ***\n";
-                        Principal.this.runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                text_resultados.setText(m_respuesta);
-                            }
-                        });
                         String vector = crea_csv();
                         String nombre_archivo = "resultados_" + m_tamano_seleccionado + ".csv";
                         File archivo_resultados = new File(Environment.getExternalStorageDirectory(), nombre_archivo);
@@ -146,17 +139,16 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         }
                     } else {
                         m_respuesta += "*** Se cierra la conexión ***\n";
-
-                        Principal.this.runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                text_resultados.setText(m_respuesta);
-                            }
-                        });
                         Snackbar alerta = Snackbar.make(v, "Se presentó un error en la conexión", Snackbar.LENGTH_LONG);
                         alerta.show();
                     }
+                    Principal.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            text_resultados.setText(m_respuesta);
+                        }
+                    });
                 }
             }
         });
@@ -164,7 +156,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     private String crea_csv() {
-        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo (s)\n";
+        String a_retornar = "Iteracion,Tamaño del archivo,Tiempo\n";
         for (int i = 0; i < m_vec_tiempos.length; ++i) {
             double tmp = m_vec_tiempos[i];
             a_retornar += String.valueOf(i + 1) + "," + m_tamano_seleccionado + "," + String.valueOf(tmp) + "\n";
@@ -330,19 +322,11 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     proc_cliente.join();    //Espero a que termine de correr el hilo "proc_cliente"
                 } catch (IOException e) {
                     e.printStackTrace();
-                    m_respuesta += "IOException: al crear el socket " +e.toString() + '\n';
+                    m_respuesta += "IOException: al crear el socket " + e.toString() + '\n';
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     m_respuesta += "InterruptedException: al hacer join" + e.toString() + '\n';
                 }
-
-                Principal.this.runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        text_resultados.setText(m_respuesta);
-                    }
-                });
             }
 
 
@@ -389,28 +373,6 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 stream_salida.write(buffer_lectura, 0, buffer_lectura.length);
                 stream_salida.flush();
 
-
-                int bytes_leidos;
-                while (!bloqueo) { //trata de adquirir el lock para entrar a la región crítica
-                    if (m_semaforo_respuesta.tryLock()) {
-                        bloqueo = true;
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(TAMANO_BUFFER);
-                        byte[] buffer = new byte[TAMANO_BUFFER];
-                        InputStream inputStream = socket_cliente.getInputStream(); //Donde viene el ACK del servidor.
-                        while ((bytes_leidos = inputStream.read(buffer)) != -1) {
-                            t_final = System.nanoTime();
-                            byteArrayOutputStream.write(buffer, 0, bytes_leidos);
-                            m_respuesta += byteArrayOutputStream.toString("UTF-8");
-                            long tiempo_tomado = t_final - t_inicial;
-                            double tiempo_segundos = (double) tiempo_tomado / 1000000000.0; //Convierte de nanosegundos a segundos
-                            tiempo_segundos = new BigDecimal(tiempo_segundos).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(); //Trunca el numero, le da 4 decimales de presicion
-                            m_respuesta += "\nDuración --> " + String.valueOf(tiempo_segundos) + " s\n";
-                            m_vec_tiempos[m_index_vec_tiempos] = tiempo_segundos;
-                            ++m_index_vec_tiempos;
-                            m_semaforo_respuesta.unlock();
-                        }
-                    }
-                }
                 if (socket_cliente != null) {
                     try {
                         socket_cliente.close();
@@ -419,6 +381,15 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                         m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
                     }
                 }
+
+                t_final = System.nanoTime();
+                long tiempo_tomado = t_final - t_inicial;
+                double tiempo_segundos = (double) tiempo_tomado / 1000000000.0; //Convierte de nanosegundos a segundos
+                tiempo_segundos = new BigDecimal(tiempo_segundos).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(); //Trunca el numero, le da 4 decimales de presicion
+                m_respuesta += "Duración --> " + String.valueOf(tiempo_segundos) + " s\n";
+                m_vec_tiempos[m_index_vec_tiempos] = tiempo_segundos;
+                ++m_index_vec_tiempos;
+
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 m_respuesta += "UnknownHostException: " + e.toString() + '\n';
@@ -429,10 +400,21 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 m_exito = false;
             } finally {
                 try {
-                    Thread.sleep(1000);
+                    socket_cliente.close();
+                    Principal.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            text_resultados.setText(m_respuesta);
+                        }
+                    });
+                    Thread.sleep(450);//Esto es importante para darle tiempo al servidor que termine de transferir toda la información
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                    m_respuesta += "InterruptedException: en el sleep" + e.toString() + '\n';
+                    m_respuesta += "InterruptedException: al hacer el sleep de hilo " + e.toString() + '\n';
                 }
             }
 

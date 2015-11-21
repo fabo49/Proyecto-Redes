@@ -61,7 +61,7 @@ public class Principal extends AppCompatActivity {
             }
         });
 
-        puerto_asignado = (TextView)findViewById(R.id.label_puerto_asignado);
+        puerto_asignado = (TextView) findViewById(R.id.label_puerto_asignado);
         puerto_asignado.setText(String.valueOf(puerto_servidor));
 
         btn_empezar = (Button) findViewById(R.id.btn_correr);
@@ -157,11 +157,12 @@ public class Principal extends AppCompatActivity {
 
         @Override
         public void run() {
+            Socket socket = null;
             try {
                 m_socket_servidor = new ServerSocket(puerto_servidor);
 
                 while (true) {
-                    Socket socket = m_socket_servidor.accept();
+                    socket = m_socket_servidor.accept();
                     ++count;
                     mensaje += "#" + count + " proveniente de " + socket.getInetAddress()
                             + ":" + socket.getPort() + "\n";
@@ -180,6 +181,14 @@ public class Principal extends AppCompatActivity {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        mensaje += "IOException: al cerrar el primer socket " + e.toString() + "\n";
+                    }
+                }
             }
         }
 
@@ -193,11 +202,11 @@ public class Principal extends AppCompatActivity {
      */
     private class SocketServerReplyThread extends Thread {
 
-        private Socket m_socket_servidor;
+        private Socket socket_servidor;
         int cnt;
 
         SocketServerReplyThread(Socket socket, int c) {
-            this.m_socket_servidor = socket;
+            socket_servidor = socket;
             cnt = c;
         }
 
@@ -208,7 +217,7 @@ public class Principal extends AppCompatActivity {
             try {
                 //Lee lo que le envia el cliente
                 byte[] buffer_lectura = new byte[TAMANO_BUFFER];
-                InputStream input_stream = m_socket_servidor.getInputStream();
+                InputStream input_stream = socket_servidor.getInputStream();
                 int bytes_leidos = input_stream.read(buffer_lectura, 0, buffer_lectura.length); //Lee el archivo recibido
 
                 //Procede a guardar el archivo recibido
@@ -222,17 +231,25 @@ public class Principal extends AppCompatActivity {
                 //Envia el mensaje de recibido (ACK)
 
                 String msgReply = "Mensaje #" + cnt + " ACK";
-                outputStream = m_socket_servidor.getOutputStream();
+                outputStream = socket_servidor.getOutputStream();
                 PrintStream printStream = new PrintStream(outputStream);
                 printStream.print(msgReply);
                 printStream.close();
                 outputStream.close();
-                m_socket_servidor.close();
+                socket_servidor.close();
 
             } catch (IOException e) {
                 e.printStackTrace();
                 mensaje += "IOException: " + e.toString() + "\n";
             } finally {
+                if (socket_servidor != null) {
+                    try {
+                        socket_servidor.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        mensaje += "IOException: al cerrar el socket " + e.toString() + '\n';
+                    }
+                }
                 Principal.this.runOnUiThread(new Runnable() {
 
                     @Override
