@@ -47,6 +47,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
 
     //Constantes
     private static final int TAMANO_BUFFER = 1024;
+    private static final int TIEMPO_ESPERA = 600;
 
     //Elementos de la interfaz
     private TextView text_resultados;
@@ -320,6 +321,8 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                     TareaCliente proc_cliente = new TareaCliente(socket, archivo);
                     proc_cliente.start();
                     proc_cliente.join();    //Espero a que termine de correr el hilo "proc_cliente"
+                    socket.close();
+                    Thread.sleep(TIEMPO_ESPERA);
                 } catch (IOException e) {
                     e.printStackTrace();
                     m_respuesta += "IOException: al crear el socket " + e.toString() + '\n';
@@ -373,15 +376,6 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 stream_salida.write(buffer_lectura, 0, buffer_lectura.length);
                 stream_salida.flush();
 
-                if (socket_cliente != null) {
-                    try {
-                        socket_cliente.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
-                    }
-                }
-
                 t_final = System.nanoTime();
                 long tiempo_tomado = t_final - t_inicial;
                 double tiempo_segundos = (double) tiempo_tomado / 1000000000.0; //Convierte de nanosegundos a segundos
@@ -399,25 +393,15 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 m_respuesta += "IOException: al hacer la conexión " + e.toString() + '\n';
                 m_exito = false;
             } finally {
-                try {
-                    socket_cliente.close();
-                    Principal.this.runOnUiThread(new Runnable() {
+                Principal.this.runOnUiThread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            text_resultados.setText(m_respuesta);
-                        }
-                    });
-                    Thread.sleep(450);//Esto es importante para darle tiempo al servidor que termine de transferir toda la información
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    m_respuesta += "IOException: al cerrar el socket " + e.toString() + '\n';
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    m_respuesta += "InterruptedException: al hacer el sleep de hilo " + e.toString() + '\n';
-                }
+                    @Override
+                    public void run() {
+                        text_resultados.setText(m_respuesta);
+                    }
+                });
             }
-
         }
+
     }
 }

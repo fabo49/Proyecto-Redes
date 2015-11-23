@@ -177,9 +177,12 @@ public class Principal extends AppCompatActivity {
 
                     SocketServerReplyThread socketServerReplyThread = new SocketServerReplyThread(socket, count);
                     socketServerReplyThread.start();
+                    socketServerReplyThread.join();
 
                 }
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
                 if (socket != null) {
@@ -215,17 +218,20 @@ public class Principal extends AppCompatActivity {
             OutputStream outputStream;
 
             try {
-                //Lee lo que le envia el cliente
-                byte[] buffer_lectura = new byte[TAMANO_BUFFER];
-                InputStream input_stream = socket_servidor.getInputStream();
-                int bytes_leidos = input_stream.read(buffer_lectura, 0, buffer_lectura.length); //Lee el archivo recibido
-
                 //Procede a guardar el archivo recibido
                 File archivo_guardar = new File(Environment.getExternalStorageDirectory(), "recibido_" + cnt + ".txt");
                 FileOutputStream salida_archivo = new FileOutputStream(archivo_guardar);
 
                 BufferedOutputStream buffer_archivo = new BufferedOutputStream(salida_archivo);
-                buffer_archivo.write(buffer_lectura, 0, bytes_leidos);
+
+                //Lee lo que le recibe del cliente
+                byte[] buffer_lectura = new byte[TAMANO_BUFFER];
+                InputStream input_stream = socket_servidor.getInputStream();
+                int bytes_leidos;
+                while ((bytes_leidos = input_stream.read(buffer_lectura)) != -1) {
+                    buffer_archivo.write(buffer_lectura, 0, bytes_leidos);
+                    //Lee el mensaje que recibe
+                }
                 buffer_archivo.close();
 
                 //Envia el mensaje de recibido (ACK)
