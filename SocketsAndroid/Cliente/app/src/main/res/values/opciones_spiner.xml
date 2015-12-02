@@ -4,5 +4,8 @@
         <item>1 KB</item>
         <item>10 KB</item>
         <item>100 KB</item>
+        <item>1 MB</item>
+        <item>10 MB</item>
+        <item>100 MB</item>
     </string-array>
 </resources>

@@ -311,6 +311,15 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 case "100 KB":
                     ruta = "100k.txt";
                     break;
+                case "1 MB":
+                    ruta = "1m.txt";
+                    break;
+                case "10 MB":
+                    ruta = "10m.txt";
+                    break;
+                case "100 MB":
+                    ruta = "100m.txt";
+                    break;
             }
             File archivo = new File(Environment.getExternalStorageDirectory(), "/archivos/" + ruta);
 
@@ -379,7 +388,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemSe
                 t_final = System.nanoTime();
                 long tiempo_tomado = t_final - t_inicial;
                 double tiempo_segundos = (double) tiempo_tomado / 1000000000.0; //Convierte de nanosegundos a segundos
-                tiempo_segundos = new BigDecimal(tiempo_segundos).setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(); //Trunca el numero, le da 4 decimales de presicion
+                tiempo_segundos = new BigDecimal(tiempo_segundos).setScale(5, BigDecimal.ROUND_HALF_UP).doubleValue(); //Trunca el numero, le da 4 decimales de presicion
                 m_respuesta += "Duración --> " + String.valueOf(tiempo_segundos) + " s\n";
                 m_vec_tiempos[m_index_vec_tiempos] = tiempo_segundos;
                 ++m_index_vec_tiempos;
