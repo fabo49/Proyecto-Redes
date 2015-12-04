@@ -1,0 +1,108 @@
+install.packages("nortest")
+getwd("Desktop")
+getwd()
+setwd("Desktop/resultados")
+x = read.csv("resultados1linux.csv")[1]
+x
+linux1 = x$Tiempos
+linux1
+mean(linux1)
+x = read.csv("resultados10linux.csv")[1]
+linux10 = x$Tiempos
+mean(linux10)
+x = read.csv("resultados100linux.csv")[1]
+linux100 = x$Tiempos
+mean(linux100)
+x = read.csv("resultados1.csv")[3]
+x
+android1 = x$Tiempo
+android1
+x = read.csv("resultados10.csv")[3]
+android10 = x$Tiempo
+x = read.csv("resultados100.csv")[3]
+android100 = x$Tiempo
+android1; android10; android100; linux1; linux10; linux100
+x
+require(graphics)
+t.test(android1, linux1)
+t.test(android10, linux10)
+t.test(android100, linux100)
+qqnorm(linux1);qqplot(linux1);
+qqline(linux1)
+hist(linux1)
+hist(linux10)
+hist(linux100)
+qqnorm(android1)
+qqplot(android1); qqline(android1);
+qqnorm(android1); qqline(android1);
+qqnorm(android10); qqline(android10);
+qqnorm(android100); qqline(android100);
+qqnorm(linux1); qqline(linux1);
+qqnorm(linux10); qqline(linux10);
+qqnorm(linux100); qqline(linux100);
+qqnorm(linux10); qqline(linux10);
+qqnorm(linux1); qqline(linux1);
+qqnorm(android100); qqline(android100);
+qqnorm(android10); qqline(android10);
+qqnorm(android1); qqline(android1);
+andoird1
+android1
+linux1
+a1 = android1*1024
+a1
+a1 = read.csv("resultados1.csv")[3]
+a1
+android1
+a1
+a1 = android1*1024
+a1
+android1
+a10 = android10*1024
+a100 = android100*1024
+a1
+a10
+a100
+t.test(a1, linux1)
+mean(a1)
+mean(a10)
+mean(a100)
+a1 = read.csv("resultados1MB.csv")[3]
+a1
+android1 = a1$Tiempos
+a10 = read.csv("resultados10MB.csv")[3]
+android10 = a10$Tiempos
+android10
+a10
+android10 = a10$Tiempo
+android10
+a = read.csv("resultados100MB.csv")[3]
+android100 = a$Tiempo
+android100
+t.test(android1, linux1)
+qqnorm(android1)
+android1 = a1$Tiempos
+android1
+android10
+android100
+a1 = read.csv("resultados1MB.csv")[3]
+android1 = a1$Tiempo
+t.test(android1, linux1)
+qqnorm(android1); qqline(android1);
+qqnorm(android10); qqline(android10);
+qqnorm(android100); qqline(android100);
+mean(android1)
+mean(android10)
+mean(android100)
+hist(android100)
+hist(android10)
+hist(android1)
+qqnoro(linux1);qqline(linux1)
+qqnorm(linux1);qqline(linux1)
+qqnorm(linux10);qqline(linux10)
+qqnorm(linux100);qqline(linux100)
+t.test(android1, linux1)
+t.test(android10, linux10)
+t.test(android100, linux100)
+plot(android1)
+t.test(android1)
+t.test(android1, android1)
